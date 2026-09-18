@@ -1,38 +1,55 @@
-import React from 'react';
+import React, { useEffect, useCallback, useRef } from 'react';
 import { useOcean } from '../shared/OceanState';
 import { COLORMAP_NAMES } from '../shared/colormaps';
+
+const DEFAULT_META = {
+  variables: [
+    { id: 'temperature', name: 'Temperature', units: '°C', default_min: 5, default_max: 31, default_colormap: 'thermal' },
+    { id: 'salinity', name: 'Salinity', units: 'PSU', default_min: 30, default_max: 37, default_colormap: 'haline' }
+  ],
+  depths: [0, 10, 25, 50, 75, 100, 150, 200, 300, 500, 750, 1000],
+  times: [
+    '2026-09-01T00:00:00Z',
+    '2026-09-02T00:00:00Z',
+    '2026-09-03T00:00:00Z',
+    '2026-09-04T00:00:00Z',
+    '2026-09-05T00:00:00Z',
+    '2026-09-06T00:00:00Z',
+    '2026-09-07T00:00:00Z'
+  ]
+};
+
+const badgeStyle = {
+  fontSize: '0.65rem',
+  padding: '1px 5px',
+  borderRadius: '3px',
+  backgroundColor: 'rgba(255, 255, 255, 0.08)',
+  color: 'var(--muted)',
+  border: '1px solid var(--border)',
+  fontFamily: 'monospace',
+  whiteSpace: 'nowrap'
+};
+
+// Keeps the timestamp clean and prevents line breaks on narrow panels
+function formatTimestamp(isoStr) {
+  if (!isoStr) return '—';
+  return isoStr.slice(0, 10);
+}
 
 export default function ControlPanel() {
   let oceanCtx = null;
   try {
     oceanCtx = useOcean();
   } catch {
-    // Falls back gracefully if OceanProvider is not yet mounted in App.jsx
+    // Context fallback
   }
 
-  // Fallback defaults matching CONTRACT.md
-  const defaultMeta = {
-    variables: [
-      { id: 'temperature', name: 'Temperature', units: '°C' },
-      { id: 'salinity', name: 'Salinity', units: 'PSU' }
-    ],
-    depths: [0, 10, 25, 50, 75, 100, 150, 200, 300, 500, 750, 1000],
-    times: [
-      '2026-09-01T00:00:00Z',
-      '2026-09-02T00:00:00Z',
-      '2026-09-03T00:00:00Z',
-      '2026-09-04T00:00:00Z',
-      '2026-09-05T00:00:00Z',
-      '2026-09-06T00:00:00Z',
-      '2026-09-07T00:00:00Z',
-    ]
-  };
+  const meta = oceanCtx?.meta || DEFAULT_META;
 
-  const meta = oceanCtx?.meta || defaultMeta;
-  const state = oceanCtx?.state || {
+  const [localState, setLocalState] = React.useState({
     variable: 'temperature',
     depth: 0,
-    time: '2026-09-01',
+    time: DEFAULT_META.times[0],
     isPlaying: false,
     colormap: 'thermal',
     vmin: 5,
@@ -41,29 +58,93 @@ export default function ControlPanel() {
     verticalExaggeration: 1,
     showFloats: true,
     showCurrents: false
-  };
+  });
 
-  // Local state hook if context is not yet present
-  const [localOverrides, setLocalOverrides] = React.useState({});
-  const activeState = { ...state, ...localOverrides };
+  const activeState = oceanCtx ? oceanCtx.state : localState;
 
-  const update = (partial) => {
+  const update = useCallback((partial) => {
     if (oceanCtx?.update) {
       oceanCtx.update(partial);
     } else {
-      setLocalOverrides((prev) => ({ ...prev, ...partial }));
+      setLocalState((prev) => {
+        const next = { ...prev, ...partial };
+        if (partial.variable && partial.variable !== prev.variable) {
+          const varDef = meta.variables?.find((v) => v.id === partial.variable);
+          if (varDef) {
+            next.vmin = varDef.default_min ?? varDef.min ?? 0;
+            next.vmax = varDef.default_max ?? varDef.max ?? 35;
+            next.colormap = varDef.default_colormap ?? 'thermal';
+          }
+        }
+        return next;
+      });
     }
-  };
+  }, [oceanCtx, meta]);
 
   const depths = meta.depths || [];
   const times = meta.times || [];
   const currentDepthIndex = depths.indexOf(activeState.depth);
   const currentTimeIndex = times.indexOf(activeState.time);
 
-  const handleDepthStep = (delta) => {
-    const nextIdx = Math.max(0, Math.min(depths.length - 1, (currentDepthIndex >= 0 ? currentDepthIndex : 0) + delta));
+  const timeIndexRef = useRef(currentTimeIndex);
+  useEffect(() => {
+    timeIndexRef.current = currentTimeIndex;
+  }, [currentTimeIndex]);
+
+  const handleDepthStep = useCallback((delta) => {
+    if (!depths.length) return;
+    const baseIdx = currentDepthIndex >= 0 ? currentDepthIndex : 0;
+    const nextIdx = Math.max(0, Math.min(depths.length - 1, baseIdx + delta));
     update({ depth: depths[nextIdx] });
-  };
+  }, [currentDepthIndex, depths, update]);
+
+  const handleTimeStep = useCallback((delta) => {
+    if (!times.length) return;
+    const baseIdx = timeIndexRef.current >= 0 ? timeIndexRef.current : 0;
+    const nextIdx = (baseIdx + delta + times.length) % times.length;
+    update({ time: times[nextIdx] });
+  }, [times, update]);
+
+  // Play loop
+  useEffect(() => {
+    if (!activeState.isPlaying || !times.length) return;
+
+    const timer = setInterval(() => {
+      const cur = timeIndexRef.current >= 0 ? timeIndexRef.current : 0;
+      const next = (cur + 1) % times.length;
+      update({ time: times[next] });
+    }, 800);
+
+    return () => clearInterval(timer);
+  }, [activeState.isPlaying, times, update]);
+
+  // Keyboard shortcuts
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      const tag = e.target.tagName.toLowerCase();
+      if (tag === 'input' || tag === 'select' || tag === 'textarea') return;
+
+      if (e.code === 'Space') {
+        e.preventDefault();
+        update({ isPlaying: !activeState.isPlaying });
+      } else if (e.code === 'ArrowUp') {
+        e.preventDefault();
+        handleDepthStep(-1);
+      } else if (e.code === 'ArrowDown') {
+        e.preventDefault();
+        handleDepthStep(1);
+      } else if (e.code === 'ArrowLeft') {
+        e.preventDefault();
+        handleTimeStep(-1);
+      } else if (e.code === 'ArrowRight') {
+        e.preventDefault();
+        handleTimeStep(1);
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [activeState.isPlaying, handleDepthStep, handleTimeStep, update]);
 
   return (
     <aside
@@ -71,19 +152,19 @@ export default function ControlPanel() {
         width: '100%',
         height: '100%',
         boxSizing: 'border-box',
-        padding: '16px',
+        padding: '14px',
         overflowY: 'auto',
         backgroundColor: 'var(--panel)',
         color: 'var(--text)',
         display: 'flex',
         flexDirection: 'column',
-        gap: '16px',
+        gap: '14px',
         fontFamily: 'sans-serif'
       }}
     >
       <header>
-        <h2 style={{ margin: '0 0 4px 0', fontSize: '1.2rem' }}>Ocean Controls</h2>
-        <span style={{ fontSize: '0.8rem', color: 'var(--muted)' }}>
+        <h2 style={{ margin: '0 0 2px 0', fontSize: '1.15rem' }}>Ocean Controls</h2>
+        <span style={{ fontSize: '0.78rem', color: 'var(--muted)' }}>
           Arabian Sea & Bay of Bengal
         </span>
       </header>
@@ -92,14 +173,14 @@ export default function ControlPanel() {
       <section
         style={{
           backgroundColor: 'var(--panel-2)',
-          padding: '12px',
+          padding: '10px 12px',
           borderRadius: '6px',
           border: '1px solid var(--border)'
         }}
       >
         <label
           htmlFor="variable-select"
-          style={{ fontSize: '0.85rem', display: 'block', marginBottom: '6px', color: 'var(--muted)' }}
+          style={{ fontSize: '0.8rem', display: 'block', marginBottom: '6px', color: 'var(--muted)' }}
         >
           Data Variable
         </label>
@@ -113,14 +194,21 @@ export default function ControlPanel() {
             backgroundColor: 'var(--panel)',
             color: 'var(--text)',
             border: '1px solid var(--border)',
-            borderRadius: '4px'
+            borderRadius: '4px',
+            cursor: 'pointer'
           }}
         >
-          {meta.variables.map((v) => (
-            <option key={v.id} value={v.id}>
-              {v.name} ({v.units})
-            </option>
-          ))}
+          {meta.variables?.map((v) => {
+            let label = v.name || v.standard_name || v.id;
+            if (v.id.includes('temp')) label = 'Temperature';
+            if (v.id.includes('sal')) label = 'Salinity';
+            const units = v.units ? ` (${v.units})` : '';
+            return (
+              <option key={v.id} value={v.id}>
+                {label}{units}
+              </option>
+            );
+          })}
         </select>
       </section>
 
@@ -128,13 +216,16 @@ export default function ControlPanel() {
       <section
         style={{
           backgroundColor: 'var(--panel-2)',
-          padding: '12px',
+          padding: '10px 12px',
           borderRadius: '6px',
           border: '1px solid var(--border)'
         }}
       >
-        <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem', marginBottom: '8px' }}>
-          <span>Depth Level</span>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.82rem', marginBottom: '6px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+            <span>Depth</span>
+            <span style={badgeStyle}>↑/↓</span>
+          </div>
           <span style={{ color: 'var(--accent)', fontWeight: 'bold' }}>{activeState.depth} m</span>
         </div>
 
@@ -159,7 +250,8 @@ export default function ControlPanel() {
               color: 'var(--text)',
               border: '1px solid var(--border)',
               borderRadius: '4px',
-              cursor: currentDepthIndex <= 0 ? 'not-allowed' : 'pointer'
+              cursor: currentDepthIndex <= 0 ? 'not-allowed' : 'pointer',
+              fontSize: '0.8rem'
             }}
           >
             ▲ Shallower
@@ -175,7 +267,8 @@ export default function ControlPanel() {
               color: 'var(--text)',
               border: '1px solid var(--border)',
               borderRadius: '4px',
-              cursor: currentDepthIndex >= depths.length - 1 ? 'not-allowed' : 'pointer'
+              cursor: currentDepthIndex >= depths.length - 1 ? 'not-allowed' : 'pointer',
+              fontSize: '0.8rem'
             }}
           >
             ▼ Deeper
@@ -187,14 +280,19 @@ export default function ControlPanel() {
       <section
         style={{
           backgroundColor: 'var(--panel-2)',
-          padding: '12px',
+          padding: '10px 12px',
           borderRadius: '6px',
           border: '1px solid var(--border)'
         }}
       >
-        <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem', marginBottom: '8px' }}>
-          <span>Timestamp</span>
-          <span style={{ color: 'var(--accent)', fontWeight: 'bold' }}>{activeState.time || '—'}</span>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.82rem', marginBottom: '6px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+            <span>Time</span>
+            <span style={badgeStyle}>←/→</span>
+          </div>
+          <span style={{ color: 'var(--accent)', fontWeight: 'bold', fontSize: '0.85rem', whiteSpace: 'nowrap' }}>
+            {formatTimestamp(activeState.time)}
+          </span>
         </div>
 
         <input
@@ -212,16 +310,22 @@ export default function ControlPanel() {
             onClick={() => update({ isPlaying: !activeState.isPlaying })}
             style={{
               flex: 1,
-              padding: '8px',
+              padding: '7px',
               backgroundColor: activeState.isPlaying ? 'var(--accent)' : 'var(--panel)',
-              color: 'var(--text)',
+              color: activeState.isPlaying ? '#000' : 'var(--text)',
               border: '1px solid var(--border)',
               borderRadius: '4px',
               fontWeight: 'bold',
-              cursor: 'pointer'
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '6px',
+              fontSize: '0.85rem'
             }}
           >
-            {activeState.isPlaying ? 'Pause ⏸' : 'Play ▶'}
+            <span>{activeState.isPlaying ? 'Pause ⏸' : 'Play ▶'}</span>
+            <span style={{ ...badgeStyle, color: activeState.isPlaying ? '#111' : 'var(--muted)', borderColor: activeState.isPlaying ? 'rgba(0,0,0,0.25)' : 'var(--border)' }}>Space</span>
           </button>
         </div>
       </section>
@@ -230,7 +334,7 @@ export default function ControlPanel() {
       <section
         style={{
           backgroundColor: 'var(--panel-2)',
-          padding: '12px',
+          padding: '10px 12px',
           borderRadius: '6px',
           border: '1px solid var(--border)',
           display: 'flex',
@@ -238,10 +342,10 @@ export default function ControlPanel() {
           gap: '10px'
         }}
       >
-        <h3 style={{ margin: '0', fontSize: '0.95rem' }}>Colour Scale</h3>
+        <h3 style={{ margin: '0', fontSize: '0.9rem' }}>Colour Scale</h3>
 
         <div>
-          <label style={{ fontSize: '0.8rem', color: 'var(--muted)', display: 'block', marginBottom: '4px' }}>
+          <label style={{ fontSize: '0.78rem', color: 'var(--muted)', display: 'block', marginBottom: '4px' }}>
             Palette
           </label>
           <select
@@ -253,7 +357,8 @@ export default function ControlPanel() {
               backgroundColor: 'var(--panel)',
               color: 'var(--text)',
               border: '1px solid var(--border)',
-              borderRadius: '4px'
+              borderRadius: '4px',
+              cursor: 'pointer'
             }}
           >
             {(COLORMAP_NAMES || ['thermal', 'haline', 'viridis']).map((cmap) => (
@@ -266,15 +371,18 @@ export default function ControlPanel() {
 
         <div style={{ display: 'flex', gap: '8px' }}>
           <div style={{ flex: 1 }}>
-            <label style={{ fontSize: '0.8rem', color: 'var(--muted)' }}>Min</label>
+            <label style={{ fontSize: '0.78rem', color: 'var(--muted)' }}>Min</label>
             <input
               type="number"
               step="any"
               value={activeState.vmin}
-              onChange={(e) => update({ vmin: parseFloat(e.target.value) || 0 })}
+              onChange={(e) => {
+                const val = parseFloat(e.target.value);
+                if (!isNaN(val)) update({ vmin: val });
+              }}
               style={{
                 width: '100%',
-                padding: '6px',
+                padding: '5px',
                 backgroundColor: 'var(--panel)',
                 color: 'var(--text)',
                 border: '1px solid var(--border)',
@@ -284,15 +392,18 @@ export default function ControlPanel() {
             />
           </div>
           <div style={{ flex: 1 }}>
-            <label style={{ fontSize: '0.8rem', color: 'var(--muted)' }}>Max</label>
+            <label style={{ fontSize: '0.78rem', color: 'var(--muted)' }}>Max</label>
             <input
               type="number"
               step="any"
               value={activeState.vmax}
-              onChange={(e) => update({ vmax: parseFloat(e.target.value) || 0 })}
+              onChange={(e) => {
+                const val = parseFloat(e.target.value);
+                if (!isNaN(val)) update({ vmax: val });
+              }}
               style={{
                 width: '100%',
-                padding: '6px',
+                padding: '5px',
                 backgroundColor: 'var(--panel)',
                 color: 'var(--text)',
                 border: '1px solid var(--border)',
@@ -304,7 +415,7 @@ export default function ControlPanel() {
         </div>
 
         <div>
-          <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.8rem', color: 'var(--muted)' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.78rem', color: 'var(--muted)' }}>
             <span>Opacity</span>
             <span>{Math.round((activeState.opacity ?? 1) * 100)}%</span>
           </div>
@@ -315,16 +426,16 @@ export default function ControlPanel() {
             step={0.05}
             value={activeState.opacity ?? 1}
             onChange={(e) => update({ opacity: parseFloat(e.target.value) })}
-            style={{ width: '100%', accentColor: 'var(--accent)' }}
+            style={{ width: '100%', accentColor: 'var(--accent)', cursor: 'pointer' }}
           />
         </div>
       </section>
 
-      {/* 5. Layers & View */}
+      {/* 5. Overlays & View */}
       <section
         style={{
           backgroundColor: 'var(--panel-2)',
-          padding: '12px',
+          padding: '10px 12px',
           borderRadius: '6px',
           border: '1px solid var(--border)',
           display: 'flex',
@@ -332,9 +443,9 @@ export default function ControlPanel() {
           gap: '10px'
         }}
       >
-        <h3 style={{ margin: '0', fontSize: '0.95rem' }}>Overlays & View</h3>
+        <h3 style={{ margin: '0', fontSize: '0.9rem' }}>Overlays & View</h3>
 
-        <label style={{ fontSize: '0.85rem', display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
+        <label style={{ fontSize: '0.82rem', display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
           <input
             type="checkbox"
             checked={!!activeState.showFloats}
@@ -343,7 +454,7 @@ export default function ControlPanel() {
           Show Float Markers
         </label>
 
-        <label style={{ fontSize: '0.85rem', display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
+        <label style={{ fontSize: '0.82rem', display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
           <input
             type="checkbox"
             checked={!!activeState.showCurrents}
@@ -353,7 +464,7 @@ export default function ControlPanel() {
         </label>
 
         <div>
-          <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.8rem', color: 'var(--muted)' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.78rem', color: 'var(--muted)' }}>
             <span>Vertical Exaggeration</span>
             <span>{activeState.verticalExaggeration}x</span>
           </div>
@@ -364,7 +475,7 @@ export default function ControlPanel() {
             step={1}
             value={activeState.verticalExaggeration}
             onChange={(e) => update({ verticalExaggeration: Number(e.target.value) })}
-            style={{ width: '100%', accentColor: 'var(--accent)', marginTop: '4px' }}
+            style={{ width: '100%', accentColor: 'var(--accent)', marginTop: '4px', cursor: 'pointer' }}
           />
         </div>
       </section>

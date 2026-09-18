@@ -1,3 +1,3 @@
 export default function OceanCube() {
-  return <div>Team Lead — Ocean Cube</div>
+  return <div>Team Lead ï¿½ Ocean Cube</div>
 }

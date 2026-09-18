@@ -1,3 +1,3 @@
 export default function ProfilePanel() {
-  return <div>Frontend Dev 2 — Profile Panel</div>
+  return <div>Frontend Dev 2 ï¿½ Profile Panel</div>
 }

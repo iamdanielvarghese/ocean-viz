@@ -273,7 +273,10 @@ def currents(time: str = Query(...), depth: float = Query(None)):
 # ── §3.6 ──────────────────────────────────────────────────────────────
 @app.get("/api/floats")
 def floats(start: str = Query(None), end: str = Query(None)):
-    all_floats = load_json(MOCK / "floats.json")
+    if DATA_MODE == "real":
+        all_floats = load_json(PROCESSED / "floats.json")
+    else:
+        all_floats = load_json(MOCK / "floats.json")
     result = all_floats
     if start is not None:
         result = [f for f in result if f["time"] >= start]
@@ -281,15 +284,14 @@ def floats(start: str = Query(None), end: str = Query(None)):
         result = [f for f in result if f["time"] <= end]
     return sorted(result, key=lambda f: f["time"])
 
-
 # ── §3.7 ──────────────────────────────────────────────────────────────
 @app.get("/api/floats/{float_id}/profile")
 def profile(float_id: str):
-    path = MOCK / "profiles" / f"{float_id}.json"
+    base = PROCESSED if DATA_MODE == "real" else MOCK
+    path = base / "profiles" / f"{float_id}.json"
     if not path.exists():
         raise HTTPException(status_code=404, detail=f"Unknown float id: {float_id}")
     return load_json(path)
-
 
 print(f"[backend] repo   = {REPO}")
 print(f"[backend] mock   = {MOCK}  exists={MOCK.exists()}")

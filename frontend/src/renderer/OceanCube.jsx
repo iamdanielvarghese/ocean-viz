@@ -14,6 +14,7 @@ export default function OceanCube() {
   const controlsRef = useRef(null)
   const planesRef = useRef([])
   const frameRef = useRef(null)
+  const boxRef = useRef(null)
 
   const { state, meta, error } = useOcean()
 
@@ -76,6 +77,7 @@ export default function OceanCube() {
     const box = new THREE.Mesh(boxGeometry, boxMaterial)
     box.position.y = -6
     scene.add(box)
+    boxRef.current = box
 
     /*
      * Animation loop.
@@ -123,6 +125,7 @@ export default function OceanCube() {
 
       boxGeometry.dispose()
       boxMaterial.dispose()
+      boxRef.current = null
 
       renderer.dispose()
 
@@ -183,6 +186,32 @@ export default function OceanCube() {
     state.opacity,
     state.depth
   ])
+
+  /*
+ * E3 — Vertical exaggeration.
+ * Reposition existing geometry only; DataTextures are not rebuilt.
+ */
+  useEffect(() => {
+    const exaggeration = Math.max(
+      1,
+      Number(state.verticalExaggeration) || 1
+    )
+
+    for (const plane of planesRef.current) {
+      plane.mesh.position.y =
+        (-plane.depth / 100) * exaggeration
+    }
+
+    if (boxRef.current) {
+      boxRef.current.scale.y = exaggeration
+      boxRef.current.position.y = -6 * exaggeration
+    }
+
+    if (controlsRef.current) {
+      controlsRef.current.target.y = -4 * exaggeration
+      controlsRef.current.update()
+    }
+  }, [state.verticalExaggeration])
 
   function buildDepthPlanes(volume) {
     const scene = sceneRef.current
@@ -267,7 +296,7 @@ export default function OceanCube() {
        */
       mesh.position.set(
         0,
-        -depth / 100,
+        (-depth / 100) * state.verticalExaggeration,
         0
       )
 

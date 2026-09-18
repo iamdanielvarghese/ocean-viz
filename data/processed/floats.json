@@ -1,0 +1,2056 @@
+[
+  {
+    "id": "2902772_238",
+    "platform": "argo",
+    "wmo": "2902772",
+    "cycle": 238,
+    "lat": 11.354,
+    "lon": 81.393,
+    "time": "2026-08-29T01:18:33Z",
+    "variables": [
+      "temperature",
+      "salinity"
+    ]
+  },
+  {
+    "id": "2902770_238",
+    "platform": "argo",
+    "wmo": "2902770",
+    "cycle": 238,
+    "lat": 9.044,
+    "lon": 86.224,
+    "time": "2026-08-29T01:21:21Z",
+    "variables": [
+      "temperature",
+      "salinity"
+    ]
+  },
+  {
+    "id": "2902768_239",
+    "platform": "argo",
+    "wmo": "2902768",
+    "cycle": 239,
+    "lat": 11.985,
+    "lon": 80.625,
+    "time": "2026-08-29T01:30:43Z",
+    "variables": [
+      "temperature",
+      "salinity"
+    ]
+  },
+  {
+    "id": "1902681_88",
+    "platform": "argo",
+    "wmo": "1902681",
+    "cycle": 88,
+    "lat": 8.325,
+    "lon": 81.984,
+    "time": "2026-08-29T02:45:00Z",
+    "variables": [
+      "temperature",
+      "salinity"
+    ]
+  },
+  {
+    "id": "1902581_115",
+    "platform": "argo",
+    "wmo": "1902581",
+    "cycle": 115,
+    "lat": 1.068,
+    "lon": 76.309,
+    "time": "2026-08-29T04:54:30Z",
+    "variables": [
+      "temperature",
+      "salinity"
+    ]
+  },
+  {
+    "id": "1902845_24",
+    "platform": "argo",
+    "wmo": "1902845",
+    "cycle": 24,
+    "lat": 10.772,
+    "lon": 68.262,
+    "time": "2026-08-29T05:39:47Z",
+    "variables": [
+      "temperature",
+      "salinity"
+    ]
+  },
+  {
+    "id": "4903973_23",
+    "platform": "argo",
+    "wmo": "4903973",
+    "cycle": 23,
+    "lat": 16.463,
+    "lon": 66.211,
+    "time": "2026-08-29T06:49:40Z",
+    "variables": [
+      "temperature",
+      "salinity"
+    ]
+  },
+  {
+    "id": "2903955_246",
+    "platform": "argo",
+    "wmo": "2903955",
+    "cycle": 246,
+    "lat": 23.112,
+    "lon": 60.666,
+    "time": "2026-08-29T08:46:20Z",
+    "variables": [
+      "temperature",
+      "salinity"
+    ]
+  },
+  {
+    "id": "7901136_119",
+    "platform": "argo",
+    "wmo": "7901136",
+    "cycle": 119,
+    "lat": 15.583,
+    "lon": 68.808,
+    "time": "2026-08-29T13:29:00Z",
+    "variables": [
+      "temperature",
+      "salinity"
+    ]
+  },
+  {
+    "id": "2903988_59",
+    "platform": "argo",
+    "wmo": "2903988",
+    "cycle": 59,
+    "lat": 13.15,
+    "lon": 88.617,
+    "time": "2026-08-29T13:59:02Z",
+    "variables": [
+      "temperature",
+      "salinity"
+    ]
+  },
+  {
+    "id": "3902573_95",
+    "platform": "argo",
+    "wmo": "3902573",
+    "cycle": 95,
+    "lat": 11.071,
+    "lon": 69.804,
+    "time": "2026-08-29T14:10:55Z",
+    "variables": [
+      "temperature",
+      "salinity"
+    ]
+  },
+  {
+    "id": "2903956_264",
+    "platform": "argo",
+    "wmo": "2903956",
+    "cycle": 264,
+    "lat": 19.464,
+    "lon": 61.742,
+    "time": "2026-08-29T14:55:20Z",
+    "variables": [
+      "temperature",
+      "salinity"
+    ]
+  },
+  {
+    "id": "5907179_56",
+    "platform": "argo",
+    "wmo": "5907179",
+    "cycle": 56,
+    "lat": 10.417,
+    "lon": 61.067,
+    "time": "2026-08-29T18:53:25Z",
+    "variables": [
+      "temperature",
+      "salinity"
+    ]
+  },
+  {
+    "id": "1902844_24",
+    "platform": "argo",
+    "wmo": "1902844",
+    "cycle": 24,
+    "lat": 9.782,
+    "lon": 65.915,
+    "time": "2026-08-29T19:04:39Z",
+    "variables": [
+      "temperature",
+      "salinity"
+    ]
+  },
+  {
+    "id": "7901016_112",
+    "platform": "argo",
+    "wmo": "7901016",
+    "cycle": 112,
+    "lat": 12.966,
+    "lon": 60.483,
+    "time": "2026-08-29T19:53:30Z",
+    "variables": [
+      "temperature",
+      "salinity"
+    ]
+  },
+  {
+    "id": "4903794_70",
+    "platform": "argo",
+    "wmo": "4903794",
+    "cycle": 70,
+    "lat": 7.044,
+    "lon": 84.896,
+    "time": "2026-08-29T20:46:20Z",
+    "variables": [
+      "temperature",
+      "salinity"
+    ]
+  },
+  {
+    "id": "1902482_119",
+    "platform": "argo",
+    "wmo": "1902482",
+    "cycle": 119,
+    "lat": 4.973,
+    "lon": 68.889,
+    "time": "2026-08-29T22:04:01Z",
+    "variables": [
+      "temperature",
+      "salinity"
+    ]
+  },
+  {
+    "id": "2903466_116",
+    "platform": "argo",
+    "wmo": "2903466",
+    "cycle": 116,
+    "lat": 0.321,
+    "lon": 75.434,
+    "time": "2026-08-29T23:51:28Z",
+    "variables": [
+      "temperature",
+      "salinity"
+    ]
+  },
+  {
+    "id": "1902289_76",
+    "platform": "argo",
+    "wmo": "1902289",
+    "cycle": 76,
+    "lat": 5.336,
+    "lon": 67.522,
+    "time": "2026-08-30T02:19:41Z",
+    "variables": [
+      "temperature",
+      "salinity"
+    ]
+  },
+  {
+    "id": "7902312_36",
+    "platform": "argo",
+    "wmo": "7902312",
+    "cycle": 36,
+    "lat": 0.817,
+    "lon": 85.145,
+    "time": "2026-08-30T04:57:37Z",
+    "variables": [
+      "temperature",
+      "salinity"
+    ]
+  },
+  {
+    "id": "1902751_140",
+    "platform": "argo",
+    "wmo": "1902751",
+    "cycle": 140,
+    "lat": 22.208,
+    "lon": 65.249,
+    "time": "2026-08-30T05:28:46Z",
+    "variables": [
+      "temperature",
+      "salinity"
+    ]
+  },
+  {
+    "id": "6903150_146",
+    "platform": "argo",
+    "wmo": "6903150",
+    "cycle": 146,
+    "lat": 0.199,
+    "lon": 88.418,
+    "time": "2026-08-30T06:52:20Z",
+    "variables": [
+      "temperature",
+      "salinity"
+    ]
+  },
+  {
+    "id": "4903899_36",
+    "platform": "argo",
+    "wmo": "4903899",
+    "cycle": 36,
+    "lat": 1.632,
+    "lon": 82.047,
+    "time": "2026-08-30T07:35:01Z",
+    "variables": [
+      "temperature",
+      "salinity"
+    ]
+  },
+  {
+    "id": "1902455_119",
+    "platform": "argo",
+    "wmo": "1902455",
+    "cycle": 119,
+    "lat": 2.447,
+    "lon": 72.397,
+    "time": "2026-08-30T08:52:04Z",
+    "variables": [
+      "temperature",
+      "salinity"
+    ]
+  },
+  {
+    "id": "1902367_57",
+    "platform": "argo",
+    "wmo": "1902367",
+    "cycle": 57,
+    "lat": 5.344,
+    "lon": 88.808,
+    "time": "2026-08-30T09:02:36Z",
+    "variables": [
+      "temperature",
+      "salinity"
+    ]
+  },
+  {
+    "id": "2902777_243",
+    "platform": "argo",
+    "wmo": "2902777",
+    "cycle": 243,
+    "lat": 0.6,
+    "lon": 91.13,
+    "time": "2026-08-30T11:33:05Z",
+    "variables": [
+      "temperature",
+      "salinity"
+    ]
+  },
+  {
+    "id": "6990612_105",
+    "platform": "argo",
+    "wmo": "6990612",
+    "cycle": 105,
+    "lat": 13.35,
+    "lon": 67.1,
+    "time": "2026-08-30T13:51:03Z",
+    "variables": [
+      "temperature",
+      "salinity"
+    ]
+  },
+  {
+    "id": "5907140_61",
+    "platform": "argo",
+    "wmo": "5907140",
+    "cycle": 61,
+    "lat": 5.917,
+    "lon": 82.45,
+    "time": "2026-08-30T14:04:19Z",
+    "variables": [
+      "temperature",
+      "salinity"
+    ]
+  },
+  {
+    "id": "3902657_83",
+    "platform": "argo",
+    "wmo": "3902657",
+    "cycle": 83,
+    "lat": 20.543,
+    "lon": 64.029,
+    "time": "2026-08-30T14:06:00Z",
+    "variables": [
+      "temperature",
+      "salinity"
+    ]
+  },
+  {
+    "id": "5907327_1",
+    "platform": "argo",
+    "wmo": "5907327",
+    "cycle": 1,
+    "lat": 15.767,
+    "lon": 63.117,
+    "time": "2026-08-30T14:15:43Z",
+    "variables": [
+      "temperature",
+      "salinity"
+    ]
+  },
+  {
+    "id": "7902248_61",
+    "platform": "argo",
+    "wmo": "7902248",
+    "cycle": 61,
+    "lat": 11.364,
+    "lon": 87.213,
+    "time": "2026-08-30T14:18:03Z",
+    "variables": [
+      "temperature",
+      "salinity"
+    ]
+  },
+  {
+    "id": "6990716_56",
+    "platform": "argo",
+    "wmo": "6990716",
+    "cycle": 56,
+    "lat": 11.35,
+    "lon": 67.517,
+    "time": "2026-08-30T18:46:19Z",
+    "variables": [
+      "temperature",
+      "salinity"
+    ]
+  },
+  {
+    "id": "2904082_24",
+    "platform": "argo",
+    "wmo": "2904082",
+    "cycle": 24,
+    "lat": 9.783,
+    "lon": 63.167,
+    "time": "2026-08-30T18:58:56Z",
+    "variables": [
+      "temperature",
+      "salinity"
+    ]
+  },
+  {
+    "id": "3902753_23",
+    "platform": "argo",
+    "wmo": "3902753",
+    "cycle": 23,
+    "lat": 16.443,
+    "lon": 65.52,
+    "time": "2026-08-30T19:17:54Z",
+    "variables": [
+      "temperature",
+      "salinity"
+    ]
+  },
+  {
+    "id": "7902407_17",
+    "platform": "argo",
+    "wmo": "7902407",
+    "cycle": 17,
+    "lat": 2.933,
+    "lon": 80.85,
+    "time": "2026-08-30T22:12:26Z",
+    "variables": [
+      "temperature",
+      "salinity"
+    ]
+  },
+  {
+    "id": "7902408_17",
+    "platform": "argo",
+    "wmo": "7902408",
+    "cycle": 17,
+    "lat": 3.333,
+    "lon": 80.583,
+    "time": "2026-08-30T22:12:30Z",
+    "variables": [
+      "temperature",
+      "salinity"
+    ]
+  },
+  {
+    "id": "1902734_166",
+    "platform": "argo",
+    "wmo": "1902734",
+    "cycle": 166,
+    "lat": 19.744,
+    "lon": 60.542,
+    "time": "2026-08-30T22:42:20Z",
+    "variables": [
+      "temperature",
+      "salinity"
+    ]
+  },
+  {
+    "id": "4903839_248",
+    "platform": "argo",
+    "wmo": "4903839",
+    "cycle": 248,
+    "lat": 22.525,
+    "lon": 66.669,
+    "time": "2026-08-31T00:50:20Z",
+    "variables": [
+      "temperature",
+      "salinity"
+    ]
+  },
+  {
+    "id": "7902384_23",
+    "platform": "argo",
+    "wmo": "7902384",
+    "cycle": 23,
+    "lat": 15.712,
+    "lon": 66.381,
+    "time": "2026-08-31T01:19:41Z",
+    "variables": [
+      "temperature",
+      "salinity"
+    ]
+  },
+  {
+    "id": "1902670_108",
+    "platform": "argo",
+    "wmo": "1902670",
+    "cycle": 108,
+    "lat": 11.167,
+    "lon": 80.383,
+    "time": "2026-08-31T03:11:33Z",
+    "variables": [
+      "temperature",
+      "salinity"
+    ]
+  },
+  {
+    "id": "2902306_86",
+    "platform": "argo",
+    "wmo": "2902306",
+    "cycle": 86,
+    "lat": 21.545,
+    "lon": 60.107,
+    "time": "2026-08-31T03:12:38Z",
+    "variables": [
+      "temperature",
+      "salinity"
+    ]
+  },
+  {
+    "id": "2904083_24",
+    "platform": "argo",
+    "wmo": "2904083",
+    "cycle": 24,
+    "lat": 9.405,
+    "lon": 62.365,
+    "time": "2026-08-31T04:12:13Z",
+    "variables": [
+      "temperature",
+      "salinity"
+    ]
+  },
+  {
+    "id": "7901015_115",
+    "platform": "argo",
+    "wmo": "7901015",
+    "cycle": 115,
+    "lat": 1.099,
+    "lon": 93.61,
+    "time": "2026-08-31T05:16:30Z",
+    "variables": [
+      "temperature",
+      "salinity"
+    ]
+  },
+  {
+    "id": "4904037_1",
+    "platform": "argo",
+    "wmo": "4904037",
+    "cycle": 1,
+    "lat": 14.617,
+    "lon": 62.867,
+    "time": "2026-08-31T06:12:50Z",
+    "variables": [
+      "temperature",
+      "salinity"
+    ]
+  },
+  {
+    "id": "2903955_247",
+    "platform": "argo",
+    "wmo": "2903955",
+    "cycle": 247,
+    "lat": 23.227,
+    "lon": 60.867,
+    "time": "2026-08-31T10:46:20Z",
+    "variables": [
+      "temperature",
+      "salinity"
+    ]
+  },
+  {
+    "id": "2902764_245",
+    "platform": "argo",
+    "wmo": "2902764",
+    "cycle": 245,
+    "lat": 2.769,
+    "lon": 76.729,
+    "time": "2026-08-31T12:00:52Z",
+    "variables": [
+      "temperature",
+      "salinity"
+    ]
+  },
+  {
+    "id": "7902249_61",
+    "platform": "argo",
+    "wmo": "7902249",
+    "cycle": 61,
+    "lat": 13.438,
+    "lon": 81.88,
+    "time": "2026-08-31T14:06:50Z",
+    "variables": [
+      "temperature",
+      "salinity"
+    ]
+  },
+  {
+    "id": "2903956_265",
+    "platform": "argo",
+    "wmo": "2903956",
+    "cycle": 265,
+    "lat": 19.484,
+    "lon": 61.872,
+    "time": "2026-08-31T16:58:20Z",
+    "variables": [
+      "temperature",
+      "salinity"
+    ]
+  },
+  {
+    "id": "7902385_23",
+    "platform": "argo",
+    "wmo": "7902385",
+    "cycle": 23,
+    "lat": 15.724,
+    "lon": 67.889,
+    "time": "2026-08-31T17:06:26Z",
+    "variables": [
+      "temperature",
+      "salinity"
+    ]
+  },
+  {
+    "id": "2904103_18",
+    "platform": "argo",
+    "wmo": "2904103",
+    "cycle": 18,
+    "lat": 1.617,
+    "lon": 80.317,
+    "time": "2026-09-01T01:04:32Z",
+    "variables": [
+      "temperature",
+      "salinity"
+    ]
+  },
+  {
+    "id": "1902457_119",
+    "platform": "argo",
+    "wmo": "1902457",
+    "cycle": 119,
+    "lat": 5.463,
+    "lon": 71.129,
+    "time": "2026-09-01T08:23:43Z",
+    "variables": [
+      "temperature",
+      "salinity"
+    ]
+  },
+  {
+    "id": "3902750_24",
+    "platform": "argo",
+    "wmo": "3902750",
+    "cycle": 24,
+    "lat": 8.228,
+    "lon": 61.508,
+    "time": "2026-09-01T15:14:29Z",
+    "variables": [
+      "temperature",
+      "salinity"
+    ]
+  },
+  {
+    "id": "2903435_94",
+    "platform": "argo",
+    "wmo": "2903435",
+    "cycle": 94,
+    "lat": 0.584,
+    "lon": 96.046,
+    "time": "2026-09-01T17:48:01Z",
+    "variables": [
+      "temperature",
+      "salinity"
+    ]
+  },
+  {
+    "id": "5907253_24",
+    "platform": "argo",
+    "wmo": "5907253",
+    "cycle": 24,
+    "lat": 9.634,
+    "lon": 61.951,
+    "time": "2026-09-01T19:06:21Z",
+    "variables": [
+      "temperature",
+      "salinity"
+    ]
+  },
+  {
+    "id": "2904013_36",
+    "platform": "argo",
+    "wmo": "2904013",
+    "cycle": 36,
+    "lat": 3.511,
+    "lon": 86.955,
+    "time": "2026-09-01T21:29:47Z",
+    "variables": [
+      "temperature",
+      "salinity"
+    ]
+  },
+  {
+    "id": "1902458_118",
+    "platform": "argo",
+    "wmo": "1902458",
+    "cycle": 118,
+    "lat": 10.06,
+    "lon": 62.761,
+    "time": "2026-09-01T21:51:11Z",
+    "variables": [
+      "temperature",
+      "salinity"
+    ]
+  },
+  {
+    "id": "3902751_24",
+    "platform": "argo",
+    "wmo": "3902751",
+    "cycle": 24,
+    "lat": 10.164,
+    "lon": 61.917,
+    "time": "2026-09-02T00:35:07Z",
+    "variables": [
+      "temperature",
+      "salinity"
+    ]
+  },
+  {
+    "id": "4903839_249",
+    "platform": "argo",
+    "wmo": "4903839",
+    "cycle": 249,
+    "lat": 22.555,
+    "lon": 66.529,
+    "time": "2026-09-02T03:17:20Z",
+    "variables": [
+      "temperature",
+      "salinity"
+    ]
+  },
+  {
+    "id": "2902936_68",
+    "platform": "argo",
+    "wmo": "2902936",
+    "cycle": 68,
+    "lat": 14.018,
+    "lon": 63.4,
+    "time": "2026-09-02T08:16:57Z",
+    "variables": [
+      "temperature",
+      "salinity"
+    ]
+  },
+  {
+    "id": "2904140_2",
+    "platform": "argo",
+    "wmo": "2904140",
+    "cycle": 2,
+    "lat": 11.365,
+    "lon": 66.864,
+    "time": "2026-09-02T09:18:34Z",
+    "variables": [
+      "temperature",
+      "salinity"
+    ]
+  },
+  {
+    "id": "2902765_240",
+    "platform": "argo",
+    "wmo": "2902765",
+    "cycle": 240,
+    "lat": 10.398,
+    "lon": 88.486,
+    "time": "2026-09-02T11:28:04Z",
+    "variables": [
+      "temperature",
+      "salinity"
+    ]
+  },
+  {
+    "id": "2903955_248",
+    "platform": "argo",
+    "wmo": "2903955",
+    "cycle": 248,
+    "lat": 23.314,
+    "lon": 60.997,
+    "time": "2026-09-02T12:48:20Z",
+    "variables": [
+      "temperature",
+      "salinity"
+    ]
+  },
+  {
+    "id": "5907082_109",
+    "platform": "argo",
+    "wmo": "5907082",
+    "cycle": 109,
+    "lat": 14.767,
+    "lon": 82.883,
+    "time": "2026-09-02T13:55:14Z",
+    "variables": [
+      "temperature",
+      "salinity"
+    ]
+  },
+  {
+    "id": "2904104_18",
+    "platform": "argo",
+    "wmo": "2904104",
+    "cycle": 18,
+    "lat": 2.517,
+    "lon": 82.917,
+    "time": "2026-09-02T17:08:15Z",
+    "variables": [
+      "temperature",
+      "salinity"
+    ]
+  },
+  {
+    "id": "2903956_266",
+    "platform": "argo",
+    "wmo": "2903956",
+    "cycle": 266,
+    "lat": 19.49,
+    "lon": 62.012,
+    "time": "2026-09-02T18:57:20Z",
+    "variables": [
+      "temperature",
+      "salinity"
+    ]
+  },
+  {
+    "id": "7902383_24",
+    "platform": "argo",
+    "wmo": "7902383",
+    "cycle": 24,
+    "lat": 13.251,
+    "lon": 63.765,
+    "time": "2026-09-02T19:05:18Z",
+    "variables": [
+      "temperature",
+      "salinity"
+    ]
+  },
+  {
+    "id": "6990715_56",
+    "platform": "argo",
+    "wmo": "6990715",
+    "cycle": 56,
+    "lat": 11.75,
+    "lon": 68.95,
+    "time": "2026-09-02T19:06:22Z",
+    "variables": [
+      "temperature",
+      "salinity"
+    ]
+  },
+  {
+    "id": "2902775_281",
+    "platform": "argo",
+    "wmo": "2902775",
+    "cycle": 281,
+    "lat": 6.986,
+    "lon": 88.937,
+    "time": "2026-09-02T19:20:46Z",
+    "variables": [
+      "temperature",
+      "salinity"
+    ]
+  },
+  {
+    "id": "2902766_248",
+    "platform": "argo",
+    "wmo": "2902766",
+    "cycle": 248,
+    "lat": 17.547,
+    "lon": 89.897,
+    "time": "2026-09-02T19:43:01Z",
+    "variables": [
+      "temperature",
+      "salinity"
+    ]
+  },
+  {
+    "id": "5907086_89",
+    "platform": "argo",
+    "wmo": "5907086",
+    "cycle": 89,
+    "lat": 5.57,
+    "lon": 86.063,
+    "time": "2026-09-02T21:55:00Z",
+    "variables": [
+      "temperature",
+      "salinity"
+    ]
+  },
+  {
+    "id": "1902734_167",
+    "platform": "argo",
+    "wmo": "1902734",
+    "cycle": 167,
+    "lat": 19.732,
+    "lon": 60.204,
+    "time": "2026-09-02T22:41:20Z",
+    "variables": [
+      "temperature",
+      "salinity"
+    ]
+  },
+  {
+    "id": "1902625_58",
+    "platform": "argo",
+    "wmo": "1902625",
+    "cycle": 58,
+    "lat": 0.854,
+    "lon": 95.276,
+    "time": "2026-09-02T23:25:00Z",
+    "variables": [
+      "temperature",
+      "salinity"
+    ]
+  },
+  {
+    "id": "2904141_2",
+    "platform": "argo",
+    "wmo": "2904141",
+    "cycle": 2,
+    "lat": 9.917,
+    "lon": 64.917,
+    "time": "2026-09-03T08:59:05Z",
+    "variables": [
+      "temperature",
+      "salinity"
+    ]
+  },
+  {
+    "id": "2902771_257",
+    "platform": "argo",
+    "wmo": "2902771",
+    "cycle": 257,
+    "lat": 5.956,
+    "lon": 74.969,
+    "time": "2026-09-03T09:14:06Z",
+    "variables": [
+      "temperature",
+      "salinity"
+    ]
+  },
+  {
+    "id": "1902669_109",
+    "platform": "argo",
+    "wmo": "1902669",
+    "cycle": 109,
+    "lat": 14.255,
+    "lon": 91.261,
+    "time": "2026-09-03T14:24:53Z",
+    "variables": [
+      "temperature",
+      "salinity"
+    ]
+  },
+  {
+    "id": "3902754_24",
+    "platform": "argo",
+    "wmo": "3902754",
+    "cycle": 24,
+    "lat": 13.321,
+    "lon": 62.4,
+    "time": "2026-09-03T19:09:33Z",
+    "variables": [
+      "temperature",
+      "salinity"
+    ]
+  },
+  {
+    "id": "2902769_248",
+    "platform": "argo",
+    "wmo": "2902769",
+    "cycle": 248,
+    "lat": 2.064,
+    "lon": 74.161,
+    "time": "2026-09-03T19:22:43Z",
+    "variables": [
+      "temperature",
+      "salinity"
+    ]
+  },
+  {
+    "id": "1902594_125",
+    "platform": "argo",
+    "wmo": "1902594",
+    "cycle": 125,
+    "lat": 9.112,
+    "lon": 86.795,
+    "time": "2026-09-03T23:00:25Z",
+    "variables": [
+      "temperature",
+      "salinity"
+    ]
+  },
+  {
+    "id": "5907326_1",
+    "platform": "argo",
+    "wmo": "5907326",
+    "cycle": 1,
+    "lat": 19.785,
+    "lon": 64.955,
+    "time": "2026-09-04T06:04:40Z",
+    "variables": [
+      "temperature",
+      "salinity"
+    ]
+  },
+  {
+    "id": "5907084_107",
+    "platform": "argo",
+    "wmo": "5907084",
+    "cycle": 107,
+    "lat": 17.067,
+    "lon": 64.983,
+    "time": "2026-09-04T14:00:01Z",
+    "variables": [
+      "temperature",
+      "salinity"
+    ]
+  },
+  {
+    "id": "6990610_107",
+    "platform": "argo",
+    "wmo": "6990610",
+    "cycle": 107,
+    "lat": 21.667,
+    "lon": 62.767,
+    "time": "2026-09-04T14:12:33Z",
+    "variables": [
+      "temperature",
+      "salinity"
+    ]
+  },
+  {
+    "id": "2903955_249",
+    "platform": "argo",
+    "wmo": "2903955",
+    "cycle": 249,
+    "lat": 23.365,
+    "lon": 61.085,
+    "time": "2026-09-04T14:54:20Z",
+    "variables": [
+      "temperature",
+      "salinity"
+    ]
+  },
+  {
+    "id": "1902291_78",
+    "platform": "argo",
+    "wmo": "1902291",
+    "cycle": 78,
+    "lat": 0.629,
+    "lon": 80.882,
+    "time": "2026-09-04T18:12:09Z",
+    "variables": [
+      "temperature",
+      "salinity"
+    ]
+  },
+  {
+    "id": "1902284_170",
+    "platform": "argo",
+    "wmo": "1902284",
+    "cycle": 170,
+    "lat": 1.444,
+    "lon": 96.167,
+    "time": "2026-09-04T19:00:23Z",
+    "variables": [
+      "temperature",
+      "salinity"
+    ]
+  },
+  {
+    "id": "2903956_267",
+    "platform": "argo",
+    "wmo": "2903956",
+    "cycle": 267,
+    "lat": 19.491,
+    "lon": 62.137,
+    "time": "2026-09-04T20:53:20Z",
+    "variables": [
+      "temperature",
+      "salinity"
+    ]
+  },
+  {
+    "id": "3902490_115",
+    "platform": "argo",
+    "wmo": "3902490",
+    "cycle": 115,
+    "lat": 0.551,
+    "lon": 69.713,
+    "time": "2026-09-05T04:26:55Z",
+    "variables": [
+      "temperature",
+      "salinity"
+    ]
+  },
+  {
+    "id": "2904142_2",
+    "platform": "argo",
+    "wmo": "2904142",
+    "cycle": 2,
+    "lat": 11.623,
+    "lon": 62.664,
+    "time": "2026-09-05T08:58:15Z",
+    "variables": [
+      "temperature",
+      "salinity"
+    ]
+  },
+  {
+    "id": "4903776_109",
+    "platform": "argo",
+    "wmo": "4903776",
+    "cycle": 109,
+    "lat": 10.6,
+    "lon": 88.65,
+    "time": "2026-09-05T14:01:50Z",
+    "variables": [
+      "temperature",
+      "salinity"
+    ]
+  },
+  {
+    "id": "6990678_66",
+    "platform": "argo",
+    "wmo": "6990678",
+    "cycle": 66,
+    "lat": 4.633,
+    "lon": 74.983,
+    "time": "2026-09-05T14:06:54Z",
+    "variables": [
+      "temperature",
+      "salinity"
+    ]
+  },
+  {
+    "id": "7901126_109",
+    "platform": "argo",
+    "wmo": "7901126",
+    "cycle": 109,
+    "lat": 13.667,
+    "lon": 91.583,
+    "time": "2026-09-05T14:09:33Z",
+    "variables": [
+      "temperature",
+      "salinity"
+    ]
+  },
+  {
+    "id": "2903891_109",
+    "platform": "argo",
+    "wmo": "2903891",
+    "cycle": 109,
+    "lat": 10.041,
+    "lon": 88.868,
+    "time": "2026-09-05T14:37:40Z",
+    "variables": [
+      "temperature",
+      "salinity"
+    ]
+  },
+  {
+    "id": "3902774_18",
+    "platform": "argo",
+    "wmo": "3902774",
+    "cycle": 18,
+    "lat": 0.036,
+    "lon": 75.911,
+    "time": "2026-09-05T17:05:35Z",
+    "variables": [
+      "temperature",
+      "salinity"
+    ]
+  },
+  {
+    "id": "5907152_41",
+    "platform": "argo",
+    "wmo": "5907152",
+    "cycle": 41,
+    "lat": 16.536,
+    "lon": 91.767,
+    "time": "2026-09-06T03:41:36Z",
+    "variables": [
+      "temperature",
+      "salinity"
+    ]
+  },
+  {
+    "id": "6990503_169",
+    "platform": "argo",
+    "wmo": "6990503",
+    "cycle": 169,
+    "lat": 2.0,
+    "lon": 84.985,
+    "time": "2026-09-06T06:47:14Z",
+    "variables": [
+      "temperature",
+      "salinity"
+    ]
+  },
+  {
+    "id": "6990514_149",
+    "platform": "argo",
+    "wmo": "6990514",
+    "cycle": 149,
+    "lat": 15.008,
+    "lon": 62.872,
+    "time": "2026-09-06T06:53:21Z",
+    "variables": [
+      "temperature",
+      "salinity"
+    ]
+  },
+  {
+    "id": "4903660_149",
+    "platform": "argo",
+    "wmo": "4903660",
+    "cycle": 149,
+    "lat": 15.816,
+    "lon": 62.666,
+    "time": "2026-09-06T07:03:17Z",
+    "variables": [
+      "temperature",
+      "salinity"
+    ]
+  },
+  {
+    "id": "4904036_2",
+    "platform": "argo",
+    "wmo": "4904036",
+    "cycle": 2,
+    "lat": 13.103,
+    "lon": 63.534,
+    "time": "2026-09-06T08:55:03Z",
+    "variables": [
+      "temperature",
+      "salinity"
+    ]
+  },
+  {
+    "id": "2903464_114",
+    "platform": "argo",
+    "wmo": "2903464",
+    "cycle": 114,
+    "lat": 0.183,
+    "lon": 84.229,
+    "time": "2026-09-06T08:55:31Z",
+    "variables": [
+      "temperature",
+      "salinity"
+    ]
+  },
+  {
+    "id": "1902660_77",
+    "platform": "argo",
+    "wmo": "1902660",
+    "cycle": 77,
+    "lat": 23.916,
+    "lon": 61.659,
+    "time": "2026-09-06T12:58:59Z",
+    "variables": [
+      "temperature",
+      "salinity"
+    ]
+  },
+  {
+    "id": "5907138_66",
+    "platform": "argo",
+    "wmo": "5907138",
+    "cycle": 66,
+    "lat": 2.55,
+    "lon": 84.817,
+    "time": "2026-09-06T13:58:05Z",
+    "variables": [
+      "temperature",
+      "salinity"
+    ]
+  },
+  {
+    "id": "6990705_56",
+    "platform": "argo",
+    "wmo": "6990705",
+    "cycle": 56,
+    "lat": 6.927,
+    "lon": 83.032,
+    "time": "2026-09-06T14:02:45Z",
+    "variables": [
+      "temperature",
+      "salinity"
+    ]
+  },
+  {
+    "id": "6990611_107",
+    "platform": "argo",
+    "wmo": "6990611",
+    "cycle": 107,
+    "lat": 21.167,
+    "lon": 67.183,
+    "time": "2026-09-06T14:04:33Z",
+    "variables": [
+      "temperature",
+      "salinity"
+    ]
+  },
+  {
+    "id": "6990609_109",
+    "platform": "argo",
+    "wmo": "6990609",
+    "cycle": 109,
+    "lat": 5.217,
+    "lon": 81.1,
+    "time": "2026-09-06T14:05:30Z",
+    "variables": [
+      "temperature",
+      "salinity"
+    ]
+  },
+  {
+    "id": "5907180_57",
+    "platform": "argo",
+    "wmo": "5907180",
+    "cycle": 57,
+    "lat": 17.23,
+    "lon": 70.708,
+    "time": "2026-09-06T14:07:31Z",
+    "variables": [
+      "temperature",
+      "salinity"
+    ]
+  },
+  {
+    "id": "2903954_62",
+    "platform": "argo",
+    "wmo": "2903954",
+    "cycle": 62,
+    "lat": 0.0,
+    "lon": 91.467,
+    "time": "2026-09-06T14:11:51Z",
+    "variables": [
+      "temperature",
+      "salinity"
+    ]
+  },
+  {
+    "id": "7901127_109",
+    "platform": "argo",
+    "wmo": "7901127",
+    "cycle": 109,
+    "lat": 12.167,
+    "lon": 91.567,
+    "time": "2026-09-06T14:12:43Z",
+    "variables": [
+      "temperature",
+      "salinity"
+    ]
+  },
+  {
+    "id": "7902458_1",
+    "platform": "argo",
+    "wmo": "7902458",
+    "cycle": 1,
+    "lat": 16.817,
+    "lon": 65.75,
+    "time": "2026-09-06T14:22:59Z",
+    "variables": [
+      "temperature",
+      "salinity"
+    ]
+  },
+  {
+    "id": "2903955_250",
+    "platform": "argo",
+    "wmo": "2903955",
+    "cycle": 250,
+    "lat": 23.422,
+    "lon": 61.097,
+    "time": "2026-09-06T17:03:20Z",
+    "variables": [
+      "temperature",
+      "salinity"
+    ]
+  },
+  {
+    "id": "2903140_137",
+    "platform": "argo",
+    "wmo": "2903140",
+    "cycle": 137,
+    "lat": 7.741,
+    "lon": 68.576,
+    "time": "2026-09-06T18:56:43Z",
+    "variables": [
+      "temperature",
+      "salinity"
+    ]
+  },
+  {
+    "id": "2903956_268",
+    "platform": "argo",
+    "wmo": "2903956",
+    "cycle": 268,
+    "lat": 19.498,
+    "lon": 62.278,
+    "time": "2026-09-06T22:59:20Z",
+    "variables": [
+      "temperature",
+      "salinity"
+    ]
+  },
+  {
+    "id": "3902755_24",
+    "platform": "argo",
+    "wmo": "3902755",
+    "cycle": 24,
+    "lat": 14.773,
+    "lon": 63.41,
+    "time": "2026-09-07T00:25:04Z",
+    "variables": [
+      "temperature",
+      "salinity"
+    ]
+  },
+  {
+    "id": "1902373_81",
+    "platform": "argo",
+    "wmo": "1902373",
+    "cycle": 81,
+    "lat": 14.375,
+    "lon": 92.02,
+    "time": "2026-09-07T03:08:53Z",
+    "variables": [
+      "temperature",
+      "salinity"
+    ]
+  },
+  {
+    "id": "2903138_137",
+    "platform": "argo",
+    "wmo": "2903138",
+    "cycle": 137,
+    "lat": 6.488,
+    "lon": 64.11,
+    "time": "2026-09-07T03:23:34Z",
+    "variables": [
+      "temperature",
+      "salinity"
+    ]
+  },
+  {
+    "id": "2903831_64",
+    "platform": "argo",
+    "wmo": "2903831",
+    "cycle": 64,
+    "lat": 17.052,
+    "lon": 89.375,
+    "time": "2026-09-07T03:30:46Z",
+    "variables": [
+      "temperature",
+      "salinity"
+    ]
+  },
+  {
+    "id": "1902755_51",
+    "platform": "argo",
+    "wmo": "1902755",
+    "cycle": 51,
+    "lat": 14.776,
+    "lon": 69.574,
+    "time": "2026-09-07T12:46:20Z",
+    "variables": [
+      "temperature",
+      "salinity"
+    ]
+  },
+  {
+    "id": "5907167_51",
+    "platform": "argo",
+    "wmo": "5907167",
+    "cycle": 51,
+    "lat": 14.776,
+    "lon": 69.574,
+    "time": "2026-09-07T12:46:20Z",
+    "variables": [
+      "temperature",
+      "salinity"
+    ]
+  },
+  {
+    "id": "3902581_105",
+    "platform": "argo",
+    "wmo": "3902581",
+    "cycle": 105,
+    "lat": 2.967,
+    "lon": 83.963,
+    "time": "2026-09-07T13:19:00Z",
+    "variables": [
+      "temperature",
+      "salinity"
+    ]
+  },
+  {
+    "id": "4903783_96",
+    "platform": "argo",
+    "wmo": "4903783",
+    "cycle": 96,
+    "lat": 5.441,
+    "lon": 70.197,
+    "time": "2026-09-07T13:23:00Z",
+    "variables": [
+      "temperature",
+      "salinity"
+    ]
+  },
+  {
+    "id": "5907092_118",
+    "platform": "argo",
+    "wmo": "5907092",
+    "cycle": 118,
+    "lat": 13.911,
+    "lon": 62.61,
+    "time": "2026-09-07T13:25:00Z",
+    "variables": [
+      "temperature",
+      "salinity"
+    ]
+  },
+  {
+    "id": "5907171_57",
+    "platform": "argo",
+    "wmo": "5907171",
+    "cycle": 57,
+    "lat": 14.222,
+    "lon": 85.806,
+    "time": "2026-09-07T14:06:10Z",
+    "variables": [
+      "temperature",
+      "salinity"
+    ]
+  },
+  {
+    "id": "4903869_56",
+    "platform": "argo",
+    "wmo": "4903869",
+    "cycle": 56,
+    "lat": 15.317,
+    "lon": 89.367,
+    "time": "2026-09-07T14:22:59Z",
+    "variables": [
+      "temperature",
+      "salinity"
+    ]
+  },
+  {
+    "id": "7902459_1",
+    "platform": "argo",
+    "wmo": "7902459",
+    "cycle": 1,
+    "lat": 16.983,
+    "lon": 68.0,
+    "time": "2026-09-07T14:27:53Z",
+    "variables": [
+      "temperature",
+      "salinity"
+    ]
+  },
+  {
+    "id": "4903793_71",
+    "platform": "argo",
+    "wmo": "4903793",
+    "cycle": 71,
+    "lat": 5.307,
+    "lon": 91.934,
+    "time": "2026-09-07T15:57:20Z",
+    "variables": [
+      "temperature",
+      "salinity"
+    ]
+  },
+  {
+    "id": "1902681_89",
+    "platform": "argo",
+    "wmo": "1902681",
+    "cycle": 89,
+    "lat": 8.865,
+    "lon": 82.622,
+    "time": "2026-09-07T21:36:00Z",
+    "variables": [
+      "temperature",
+      "salinity"
+    ]
+  },
+  {
+    "id": "1902581_116",
+    "platform": "argo",
+    "wmo": "1902581",
+    "cycle": 116,
+    "lat": 1.097,
+    "lon": 76.324,
+    "time": "2026-09-07T23:52:30Z",
+    "variables": [
+      "temperature",
+      "salinity"
+    ]
+  },
+  {
+    "id": "7902069_42",
+    "platform": "argo",
+    "wmo": "7902069",
+    "cycle": 42,
+    "lat": 13.413,
+    "lon": 84.78,
+    "time": "2026-09-08T01:46:15Z",
+    "variables": [
+      "temperature",
+      "salinity"
+    ]
+  },
+  {
+    "id": "2902770_239",
+    "platform": "argo",
+    "wmo": "2902770",
+    "cycle": 239,
+    "lat": 8.969,
+    "lon": 85.866,
+    "time": "2026-09-08T03:18:21Z",
+    "variables": [
+      "temperature",
+      "salinity"
+    ]
+  },
+  {
+    "id": "2902772_239",
+    "platform": "argo",
+    "wmo": "2902772",
+    "cycle": 239,
+    "lat": 11.604,
+    "lon": 83.653,
+    "time": "2026-09-08T03:25:58Z",
+    "variables": [
+      "temperature",
+      "salinity"
+    ]
+  },
+  {
+    "id": "2902768_240",
+    "platform": "argo",
+    "wmo": "2902768",
+    "cycle": 240,
+    "lat": 11.358,
+    "lon": 81.408,
+    "time": "2026-09-08T03:30:18Z",
+    "variables": [
+      "temperature",
+      "salinity"
+    ]
+  },
+  {
+    "id": "4903973_24",
+    "platform": "argo",
+    "wmo": "4903973",
+    "cycle": 24,
+    "lat": 16.775,
+    "lon": 66.018,
+    "time": "2026-09-08T05:02:03Z",
+    "variables": [
+      "temperature",
+      "salinity"
+    ]
+  },
+  {
+    "id": "7902073_41",
+    "platform": "argo",
+    "wmo": "7902073",
+    "cycle": 41,
+    "lat": 17.668,
+    "lon": 88.209,
+    "time": "2026-09-08T05:18:01Z",
+    "variables": [
+      "temperature",
+      "salinity"
+    ]
+  },
+  {
+    "id": "2902936_69",
+    "platform": "argo",
+    "wmo": "2902936",
+    "cycle": 69,
+    "lat": 13.909,
+    "lon": 63.415,
+    "time": "2026-09-08T08:14:28Z",
+    "variables": [
+      "temperature",
+      "salinity"
+    ]
+  },
+  {
+    "id": "7901136_120",
+    "platform": "argo",
+    "wmo": "7901136",
+    "cycle": 120,
+    "lat": 15.704,
+    "lon": 68.511,
+    "time": "2026-09-08T13:28:00Z",
+    "variables": [
+      "temperature",
+      "salinity"
+    ]
+  },
+  {
+    "id": "5907179_57",
+    "platform": "argo",
+    "wmo": "5907179",
+    "cycle": 57,
+    "lat": 10.261,
+    "lon": 60.803,
+    "time": "2026-09-08T13:44:21Z",
+    "variables": [
+      "temperature",
+      "salinity"
+    ]
+  },
+  {
+    "id": "2903988_60",
+    "platform": "argo",
+    "wmo": "2903988",
+    "cycle": 60,
+    "lat": 12.73,
+    "lon": 88.895,
+    "time": "2026-09-08T14:10:51Z",
+    "variables": [
+      "temperature",
+      "salinity"
+    ]
+  },
+  {
+    "id": "7901016_113",
+    "platform": "argo",
+    "wmo": "7901016",
+    "cycle": 113,
+    "lat": 13.077,
+    "lon": 60.664,
+    "time": "2026-09-08T14:56:30Z",
+    "variables": [
+      "temperature",
+      "salinity"
+    ]
+  },
+  {
+    "id": "4903794_71",
+    "platform": "argo",
+    "wmo": "4903794",
+    "cycle": 71,
+    "lat": 7.743,
+    "lon": 85.346,
+    "time": "2026-09-08T15:45:20Z",
+    "variables": [
+      "temperature",
+      "salinity"
+    ]
+  },
+  {
+    "id": "2903955_251",
+    "platform": "argo",
+    "wmo": "2903955",
+    "cycle": 251,
+    "lat": 23.468,
+    "lon": 61.113,
+    "time": "2026-09-08T18:50:20Z",
+    "variables": [
+      "temperature",
+      "salinity"
+    ]
+  },
+  {
+    "id": "2903466_117",
+    "platform": "argo",
+    "wmo": "2903466",
+    "cycle": 117,
+    "lat": 0.222,
+    "lon": 75.286,
+    "time": "2026-09-09T00:03:13Z",
+    "variables": [
+      "temperature",
+      "salinity"
+    ]
+  },
+  {
+    "id": "1902751_141",
+    "platform": "argo",
+    "wmo": "1902751",
+    "cycle": 141,
+    "lat": 22.154,
+    "lon": 65.245,
+    "time": "2026-09-09T00:08:12Z",
+    "variables": [
+      "temperature",
+      "salinity"
+    ]
+  },
+  {
+    "id": "2903956_269",
+    "platform": "argo",
+    "wmo": "2903956",
+    "cycle": 269,
+    "lat": 19.557,
+    "lon": 62.412,
+    "time": "2026-09-09T00:57:20Z",
+    "variables": [
+      "temperature",
+      "salinity"
+    ]
+  },
+  {
+    "id": "1902289_77",
+    "platform": "argo",
+    "wmo": "1902289",
+    "cycle": 77,
+    "lat": 5.555,
+    "lon": 67.622,
+    "time": "2026-09-09T02:51:17Z",
+    "variables": [
+      "temperature",
+      "salinity"
+    ]
+  },
+  {
+    "id": "1902482_120",
+    "platform": "argo",
+    "wmo": "1902482",
+    "cycle": 120,
+    "lat": 5.06,
+    "lon": 69.012,
+    "time": "2026-09-09T04:28:22Z",
+    "variables": [
+      "temperature",
+      "salinity"
+    ]
+  },
+  {
+    "id": "7902312_37",
+    "platform": "argo",
+    "wmo": "7902312",
+    "cycle": 37,
+    "lat": 0.849,
+    "lon": 85.13,
+    "time": "2026-09-09T05:03:59Z",
+    "variables": [
+      "temperature",
+      "salinity"
+    ]
+  },
+  {
+    "id": "1902455_120",
+    "platform": "argo",
+    "wmo": "1902455",
+    "cycle": 120,
+    "lat": 2.936,
+    "lon": 72.097,
+    "time": "2026-09-09T07:38:01Z",
+    "variables": [
+      "temperature",
+      "salinity"
+    ]
+  },
+  {
+    "id": "3902657_84",
+    "platform": "argo",
+    "wmo": "3902657",
+    "cycle": 84,
+    "lat": 20.22,
+    "lon": 64.087,
+    "time": "2026-09-09T08:43:30Z",
+    "variables": [
+      "temperature",
+      "salinity"
+    ]
+  },
+  {
+    "id": "6903150_147",
+    "platform": "argo",
+    "wmo": "6903150",
+    "cycle": 147,
+    "lat": 0.354,
+    "lon": 89.2,
+    "time": "2026-09-09T11:51:20Z",
+    "variables": [
+      "temperature",
+      "salinity"
+    ]
+  },
+  {
+    "id": "2902777_244",
+    "platform": "argo",
+    "wmo": "2902777",
+    "cycle": 244,
+    "lat": 0.874,
+    "lon": 91.877,
+    "time": "2026-09-09T13:30:56Z",
+    "variables": [
+      "temperature",
+      "salinity"
+    ]
+  },
+  {
+    "id": "4903972_25",
+    "platform": "argo",
+    "wmo": "4903972",
+    "cycle": 25,
+    "lat": 9.119,
+    "lon": 62.865,
+    "time": "2026-09-09T13:53:51Z",
+    "variables": [
+      "temperature",
+      "salinity"
+    ]
+  },
+  {
+    "id": "2904082_25",
+    "platform": "argo",
+    "wmo": "2904082",
+    "cycle": 25,
+    "lat": 10.267,
+    "lon": 63.433,
+    "time": "2026-09-09T14:01:55Z",
+    "variables": [
+      "temperature",
+      "salinity"
+    ]
+  },
+  {
+    "id": "5907140_62",
+    "platform": "argo",
+    "wmo": "5907140",
+    "cycle": 62,
+    "lat": 5.689,
+    "lon": 82.503,
+    "time": "2026-09-09T14:06:37Z",
+    "variables": [
+      "temperature",
+      "salinity"
+    ]
+  },
+  {
+    "id": "7902248_62",
+    "platform": "argo",
+    "wmo": "7902248",
+    "cycle": 62,
+    "lat": 11.1,
+    "lon": 86.95,
+    "time": "2026-09-09T14:10:04Z",
+    "variables": [
+      "temperature",
+      "salinity"
+    ]
+  },
+  {
+    "id": "3902753_24",
+    "platform": "argo",
+    "wmo": "3902753",
+    "cycle": 24,
+    "lat": 16.42,
+    "lon": 65.29,
+    "time": "2026-09-09T15:34:43Z",
+    "variables": [
+      "temperature",
+      "salinity"
+    ]
+  },
+  {
+    "id": "7902407_18",
+    "platform": "argo",
+    "wmo": "7902407",
+    "cycle": 18,
+    "lat": 3.042,
+    "lon": 81.289,
+    "time": "2026-09-09T17:00:15Z",
+    "variables": [
+      "temperature",
+      "salinity"
+    ]
+  },
+  {
+    "id": "7902170_89",
+    "platform": "argo",
+    "wmo": "7902170",
+    "cycle": 89,
+    "lat": 0.176,
+    "lon": 80.413,
+    "time": "2026-09-09T17:07:26Z",
+    "variables": [
+      "temperature",
+      "salinity"
+    ]
+  },
+  {
+    "id": "1902367_58",
+    "platform": "argo",
+    "wmo": "1902367",
+    "cycle": 58,
+    "lat": 5.731,
+    "lon": 88.848,
+    "time": "2026-09-09T20:26:54Z",
+    "variables": [
+      "temperature",
+      "salinity"
+    ]
+  },
+  {
+    "id": "7902384_24",
+    "platform": "argo",
+    "wmo": "7902384",
+    "cycle": 24,
+    "lat": 15.795,
+    "lon": 66.323,
+    "time": "2026-09-09T21:47:37Z",
+    "variables": [
+      "temperature",
+      "salinity"
+    ]
+  },
+  {
+    "id": "7901015_116",
+    "platform": "argo",
+    "wmo": "7901015",
+    "cycle": 116,
+    "lat": 0.361,
+    "lon": 93.887,
+    "time": "2026-09-09T23:58:30Z",
+    "variables": [
+      "temperature",
+      "salinity"
+    ]
+  }
+]

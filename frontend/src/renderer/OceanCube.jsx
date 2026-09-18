@@ -1,5 +1,5 @@
 
-import React, { useEffect, useRef } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import * as THREE from 'three'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
 
@@ -21,10 +21,13 @@ export default function OceanCube() {
   const pointerDownRef = useRef(null)
   const currentsRef = useRef(null)
   const volumeCacheRef = useRef(new Map())
+  const e8GroupRef = useRef(null)
   const overlayRef = useRef(null)
   const cameraPresetRef = useRef(null)
 
   const { state, update, meta, error } = useOcean()
+  const [sectionMode, setSectionMode] = useState('longitude')
+  const [sectionValue, setSectionValue] = useState(80)
 
   // Shared selection-visual logic — called from the selection effect AND
   // right after floats finish loading, to catch a click that raced ahead
@@ -385,6 +388,12 @@ export default function OceanCube() {
         currentsRef.current = null
       }
 
+      if (e8GroupRef.current) {
+        disposeE8Group(e8GroupRef.current)
+        scene.remove(e8GroupRef.current)
+        e8GroupRef.current = null
+      }
+
       boxGeometry.dispose()
       boxMaterial.dispose()
       boxRef.current = null
@@ -470,6 +479,8 @@ export default function OceanCube() {
         } else {
           buildDepthPlanes(volume)
         }
+
+        buildE8Overlays(volume)
       } catch (err) {
         console.error(
           'Ocean volume load failed:',
@@ -542,6 +553,30 @@ export default function OceanCube() {
       cancelled = true
     }
   }, [meta, state.variable])
+
+  // E8: rebuild curtains/vertical section from the cached volume
+  // whenever the selected section position/orientation changes.
+  useEffect(() => {
+    if (!meta || !state.time) return
+
+    const key = `${state.variable}|${state.time}`
+    const volume = volumeCacheRef.current.get(key)
+
+    if (!volume) return
+
+    buildE8Overlays(volume)
+  }, [
+    meta,
+    state.variable,
+    state.time,
+    state.colormap,
+    state.vmin,
+    state.vmax,
+    state.scale,
+    state.verticalExaggeration,
+    sectionMode,
+    sectionValue,
+  ])
 
   useEffect(() => {
     if (!planesRef.current.length) return
@@ -1267,6 +1302,405 @@ export default function OceanCube() {
     texture.needsUpdate = true
   }
 
+
+  // ============================================================
+  // E8 — CURTAINS + MOVABLE VERTICAL SECTION
+  // ============================================================
+
+  function buildE8Overlays(volume) {
+    const scene = sceneRef.current
+
+    if (!scene) return
+
+    if (e8GroupRef.current) {
+      disposeE8Group(e8GroupRef.current)
+      scene.remove(e8GroupRef.current)
+      e8GroupRef.current = null
+    }
+
+    const lats = volume.lats || []
+    const lons = volume.lons || []
+    const depths = volume.depths || []
+    const valuesByDepth = volume.values || []
+
+    if (
+      !lats.length ||
+      !lons.length ||
+      !depths.length ||
+      !valuesByDepth.length
+    ) {
+      console.warn(
+        'E8: volume is missing grid/depth data'
+      )
+      return
+    }
+
+    const group = new THREE.Group()
+    group.name = 'E8_CurtainsAndSection'
+
+    const lonMin = Number(lons[0])
+    const lonMax = Number(lons[lons.length - 1])
+    const latMin = Number(lats[0])
+    const latMax = Number(lats[lats.length - 1])
+
+    const lonWidth = lonMax - lonMin
+    const latWidth = latMax - latMin
+
+    const depthMax = Number(depths[depths.length - 1])
+
+    if (
+      !Number.isFinite(lonWidth) ||
+      !Number.isFinite(latWidth) ||
+      !Number.isFinite(depthMax) ||
+      depthMax <= 0
+    ) {
+      console.warn('E8: invalid volume geometry')
+      return
+    }
+
+    const exaggeration = Math.max(
+      1,
+      Number(state.verticalExaggeration) || 1
+    )
+
+    const visualDepth = (
+      depthMax / 100
+    ) * exaggeration
+
+    const wallMaterialOptions = {
+      transparent: true,
+      opacity: Math.min(
+        0.16,
+        Math.max(0.05, Number(state.opacity) || 0.12) * 0.35
+      ),
+      side: THREE.DoubleSide,
+      depthWrite: false,
+      depthTest: true,
+    }
+
+    const sectionMaterialOptions = {
+      transparent: true,
+      opacity: Math.min(
+        0.62,
+        Math.max(0.25, Number(state.opacity) || 0.12) * 1.8
+      ),
+      side: THREE.DoubleSide,
+      depthWrite: false,
+      depthTest: true,
+    }
+
+    /*
+     * DataTexture row 0 maps to the bottom of a PlaneGeometry.
+     * Reverse the depth order so the shallowest data appears at
+     * the top of the vertical curtain/section.
+     */
+    const depthIndices = depths.map(
+      (_, index) => depths.length - 1 - index
+    )
+
+    const westMatrix = depthIndices.map(
+      (depthIndex) =>
+        (valuesByDepth[depthIndex] || []).map(
+          (row) => row?.[0]
+        )
+    )
+
+    const eastColumn =
+      lons.length - 1
+
+    const eastMatrix = depthIndices.map(
+      (depthIndex) =>
+        (valuesByDepth[depthIndex] || []).map(
+          (row) => row?.[eastColumn]
+        )
+    )
+
+    const southMatrix = depthIndices.map(
+      (depthIndex) => {
+        const row =
+          valuesByDepth[depthIndex]?.[0] || []
+
+        return Array.from(row)
+      }
+    )
+
+    const northRow =
+      lats.length - 1
+
+    const northMatrix = depthIndices.map(
+      (depthIndex) => {
+        const row =
+          valuesByDepth[depthIndex]?.[northRow] || []
+
+        return Array.from(row)
+      }
+    )
+
+    const westTexture = createDataTexture(
+      westMatrix,
+      westMatrix.length,
+      lats.length
+    )
+
+    const eastTexture = createDataTexture(
+      eastMatrix,
+      eastMatrix.length,
+      lats.length
+    )
+
+    const southTexture = createDataTexture(
+      southMatrix,
+      southMatrix.length,
+      lons.length
+    )
+
+    const northTexture = createDataTexture(
+      northMatrix,
+      northMatrix.length,
+      lons.length
+    )
+
+    const wallMaterial = (texture) =>
+      new THREE.MeshBasicMaterial({
+        map: texture,
+        ...wallMaterialOptions,
+      })
+
+    /*
+     * West/east curtains: local X becomes world Z after
+     * rotateY, so latitude runs along the wall.
+     */
+    const westMesh = new THREE.Mesh(
+      new THREE.PlaneGeometry(
+        latWidth,
+        visualDepth
+      ),
+      wallMaterial(westTexture)
+    )
+
+    westMesh.rotation.y = Math.PI / 2
+    westMesh.position.set(
+      lonMin - 80,
+      -visualDepth / 2,
+      (latMin + latMax) / 2 - 12.5
+    )
+
+    const eastMesh = new THREE.Mesh(
+      new THREE.PlaneGeometry(
+        latWidth,
+        visualDepth
+      ),
+      wallMaterial(eastTexture)
+    )
+
+    eastMesh.rotation.y = Math.PI / 2
+    eastMesh.position.set(
+      lonMax - 80,
+      -visualDepth / 2,
+      (latMin + latMax) / 2 - 12.5
+    )
+
+    /*
+     * South/north curtains: PlaneGeometry is already in
+     * the world X/Y plane, so longitude runs horizontally
+     * and depth runs vertically.
+     */
+    const southMesh = new THREE.Mesh(
+      new THREE.PlaneGeometry(
+        lonWidth,
+        visualDepth
+      ),
+      wallMaterial(southTexture)
+    )
+
+    southMesh.position.set(
+      (lonMin + lonMax) / 2 - 80,
+      -visualDepth / 2,
+      latMin - 12.5
+    )
+
+    const northMesh = new THREE.Mesh(
+      new THREE.PlaneGeometry(
+        lonWidth,
+        visualDepth
+      ),
+      wallMaterial(northTexture)
+    )
+
+    northMesh.position.set(
+      (lonMin + lonMax) / 2 - 80,
+      -visualDepth / 2,
+      latMax - 12.5
+    )
+
+    westMesh.name = 'E8_Curtain_West'
+    eastMesh.name = 'E8_Curtain_East'
+    southMesh.name = 'E8_Curtain_South'
+    northMesh.name = 'E8_Curtain_North'
+
+    group.add(
+      westMesh,
+      eastMesh,
+      southMesh,
+      northMesh
+    )
+
+    /*
+     * Movable vertical section:
+     *   longitude mode = constant longitude, latitude × depth
+     *   latitude mode  = constant latitude, longitude × depth
+     */
+    const requestedValue = Number(sectionValue)
+
+    let selectedValue = requestedValue
+
+    let sectionMesh
+
+    if (sectionMode === 'latitude') {
+      selectedValue = Number.isFinite(requestedValue)
+        ? Math.min(
+          latMax,
+          Math.max(latMin, requestedValue)
+        )
+        : (latMin + latMax) / 2
+
+      const latIndex = nearestGridIndex(
+        lats,
+        selectedValue
+      )
+
+      const matrix = depthIndices.map(
+        (depthIndex) =>
+          Array.from(
+            valuesByDepth[depthIndex]?.[latIndex] || []
+          )
+      )
+
+      const texture = createDataTexture(
+        matrix,
+        matrix.length,
+        lons.length
+      )
+
+      sectionMesh = new THREE.Mesh(
+        new THREE.PlaneGeometry(
+          lonWidth,
+          visualDepth
+        ),
+        new THREE.MeshBasicMaterial({
+          map: texture,
+          ...sectionMaterialOptions,
+        })
+      )
+
+      sectionMesh.position.set(
+        (lonMin + lonMax) / 2 - 80,
+        -visualDepth / 2,
+        selectedValue - 12.5
+      )
+
+      sectionMesh.name = 'E8_VerticalSection_Latitude'
+    } else {
+      selectedValue = Number.isFinite(requestedValue)
+        ? Math.min(
+          lonMax,
+          Math.max(lonMin, requestedValue)
+        )
+        : (lonMin + lonMax) / 2
+
+      const lonIndex = nearestGridIndex(
+        lons,
+        selectedValue
+      )
+
+      const matrix = depthIndices.map(
+        (depthIndex) =>
+          (valuesByDepth[depthIndex] || []).map(
+            (row) => row?.[lonIndex]
+          )
+      )
+
+      const texture = createDataTexture(
+        matrix,
+        matrix.length,
+        lats.length
+      )
+
+      sectionMesh = new THREE.Mesh(
+        new THREE.PlaneGeometry(
+          latWidth,
+          visualDepth
+        ),
+        new THREE.MeshBasicMaterial({
+          map: texture,
+          ...sectionMaterialOptions,
+        })
+      )
+
+      sectionMesh.rotation.y = Math.PI / 2
+      sectionMesh.position.set(
+        selectedValue - 80,
+        -visualDepth / 2,
+        (latMin + latMax) / 2 - 12.5
+      )
+
+      sectionMesh.name = 'E8_VerticalSection_Longitude'
+    }
+
+    group.add(sectionMesh)
+
+    scene.add(group)
+    e8GroupRef.current = group
+
+    console.log(
+      'E8 SECTION:',
+      sectionMode,
+      selectedValue
+    )
+  }
+
+  function nearestGridIndex(values, target) {
+    let bestIndex = 0
+    let bestDistance = Infinity
+
+    for (let index = 0; index < values.length; index++) {
+      const distance = Math.abs(
+        Number(values[index]) - Number(target)
+      )
+
+      if (distance < bestDistance) {
+        bestDistance = distance
+        bestIndex = index
+      }
+    }
+
+    return bestIndex
+  }
+
+  function disposeE8Group(group) {
+    if (!group) return
+
+    group.traverse((object) => {
+      if (object.geometry) {
+        object.geometry.dispose()
+      }
+
+      if (object.material) {
+        const materials = Array.isArray(object.material)
+          ? object.material
+          : [object.material]
+
+        for (const material of materials) {
+          if (material.map) {
+            material.map.dispose()
+          }
+
+          material.dispose()
+        }
+      }
+    })
+  }
+
   function buildDepthPlanes(volume) {
     const scene = sceneRef.current
 
@@ -1583,6 +2017,111 @@ export default function OceanCube() {
         background: '#07111f',
       }}
     >
+      {meta && (
+        <div
+          style={{
+            position: 'absolute',
+            left: '12px',
+            bottom: '12px',
+            zIndex: 20,
+            width: '210px',
+            padding: '10px 12px',
+            borderRadius: '8px',
+            border: '1px solid rgba(255,255,255,.12)',
+            background: 'rgba(7,17,31,.88)',
+            color: 'white',
+            font: '12px/1.35 sans-serif',
+            boxSizing: 'border-box',
+          }}
+        >
+          <div
+            style={{
+              fontWeight: 700,
+              marginBottom: '7px',
+            }}
+          >
+            Vertical Section
+          </div>
+
+          <select
+            value={sectionMode}
+            onChange={(event) => {
+              const mode = event.target.value
+              setSectionMode(mode)
+
+              if (mode === 'longitude') {
+                setSectionValue(
+                  Number(
+                    (
+                      (Number(meta.lons?.[0]) || 60) +
+                      (Number(meta.lons?.[meta.lons.length - 1]) || 100)
+                    ) / 2
+                  )
+                )
+              } else {
+                setSectionValue(
+                  Number(
+                    (
+                      (Number(meta.lats?.[0]) || 0) +
+                      (Number(meta.lats?.[meta.lats.length - 1]) || 25)
+                    ) / 2
+                  )
+                )
+              }
+            }}
+            style={{
+              width: '100%',
+              marginBottom: '7px',
+              padding: '5px 6px',
+              borderRadius: '5px',
+              border: '1px solid rgba(255,255,255,.18)',
+              background: 'rgba(255,255,255,.08)',
+              color: 'white',
+              outline: 'none',
+            }}
+          >
+            <option value="longitude">
+              Constant longitude
+            </option>
+            <option value="latitude">
+              Constant latitude
+            </option>
+          </select>
+
+          <div style={{ marginBottom: '4px' }}>
+            {sectionMode === 'longitude'
+              ? `Longitude: ${Number(sectionValue).toFixed(1)}°E`
+              : `Latitude: ${Number(sectionValue).toFixed(1)}°N`}
+          </div>
+
+          <input
+            type="range"
+            min={
+              sectionMode === 'longitude'
+                ? Number(meta.lons?.[0] ?? 60)
+                : Number(meta.lats?.[0] ?? 0)
+            }
+            max={
+              sectionMode === 'longitude'
+                ? Number(meta.lons?.[meta.lons.length - 1] ?? 100)
+                : Number(meta.lats?.[meta.lats.length - 1] ?? 25)
+            }
+            step="0.5"
+            value={sectionValue}
+            onChange={(event) =>
+              setSectionValue(
+                Number(event.target.value)
+              )
+            }
+            style={{
+              width: '100%',
+              accentColor: '#38bdf8',
+              cursor: 'pointer',
+            }}
+          />
+        </div>
+      )}
+
       {!meta && (
         <div
           style={{

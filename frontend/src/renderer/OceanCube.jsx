@@ -1,9 +1,10 @@
+
 import React, { useEffect, useRef } from 'react'
 import * as THREE from 'three'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
 
 import { useOcean } from '../shared/OceanState'
-import { getVolume, getFloats } from '../shared/api'
+import { getVolume, getFloats, getCurrents } from '../shared/api'
 import { getColor, valueToT } from '../shared/colormaps'
 
 export default function OceanCube() {
@@ -18,6 +19,7 @@ export default function OceanCube() {
   const floatSelectionRef = useRef(null)
   const floatsGroupRef = useRef(null)
   const pointerDownRef = useRef(null)
+  const currentsRef = useRef(null)
 
   const { state, update, meta, error } = useOcean()
 
@@ -52,14 +54,25 @@ export default function OceanCube() {
     const x = Number(selected.lon) - 80
     const z = Number(selected.lat) - 12.5
 
-    const exaggeration = Math.max(1, Number(state.verticalExaggeration) || 1)
-    const target = new THREE.Vector3(x, -4 * exaggeration, z)
+    const exaggeration = Math.max(
+      1,
+      Number(state.verticalExaggeration) || 1
+    )
+
+    const target = new THREE.Vector3(
+      x,
+      -4 * exaggeration,
+      z
+    )
 
     marker.position.set(x, 0.15, z)
     marker.visible = true
 
     const offset = camera.position.clone().sub(controls.target)
-    if (offset.length() > 65) offset.setLength(65)
+
+    if (offset.length() > 65) {
+      offset.setLength(65)
+    }
 
     controls.target.copy(target)
     camera.position.copy(target).add(offset)
@@ -85,15 +98,27 @@ export default function OceanCube() {
 
     camera.position.set(35, 30, 38)
 
-    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false })
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
+    const renderer = new THREE.WebGLRenderer({
+      antialias: true,
+      alpha: false,
+    })
+
+    renderer.setPixelRatio(
+      Math.min(window.devicePixelRatio, 2)
+    )
+
     renderer.setSize(
       Math.max(container.clientWidth, 1),
       Math.max(container.clientHeight, 1)
     )
+
     container.appendChild(renderer.domElement)
 
-    const controls = new OrbitControls(camera, renderer.domElement)
+    const controls = new OrbitControls(
+      camera,
+      renderer.domElement
+    )
+
     const raycaster = new THREE.Raycaster()
     const pointer = new THREE.Vector2()
 
@@ -119,15 +144,23 @@ export default function OceanCube() {
 
       const rect = renderer.domElement.getBoundingClientRect()
 
-      pointer.x = ((event.clientX - rect.left) / rect.width) * 2 - 1
-      pointer.y = -((event.clientY - rect.top) / rect.height) * 2 + 1
+      pointer.x =
+        ((event.clientX - rect.left) / rect.width) * 2 - 1
+
+      pointer.y =
+        -((event.clientY - rect.top) / rect.height) * 2 + 1
 
       raycaster.setFromCamera(pointer, camera)
 
       const group = floatsGroupRef.current
+
       if (!group || !group.visible) return
 
-      const hits = raycaster.intersectObjects(group.children, false)
+      const hits = raycaster.intersectObjects(
+        group.children,
+        false
+      )
+
       if (!hits.length) return
 
       const floatId = hits[0].object.userData.floatId
@@ -138,8 +171,15 @@ export default function OceanCube() {
       }
     }
 
-    renderer.domElement.addEventListener('pointerdown', handlePointerDown)
-    renderer.domElement.addEventListener('pointerup', handlePointerUp)
+    renderer.domElement.addEventListener(
+      'pointerdown',
+      handlePointerDown
+    )
+
+    renderer.domElement.addEventListener(
+      'pointerup',
+      handlePointerUp
+    )
 
     controls.enableDamping = true
     controls.dampingFactor = 0.06
@@ -152,46 +192,67 @@ export default function OceanCube() {
     rendererRef.current = renderer
     controlsRef.current = controls
 
-    const boxGeometry = new THREE.BoxGeometry(40, 12, 25)
+    const boxGeometry = new THREE.BoxGeometry(
+      40,
+      12,
+      25
+    )
+
     const boxMaterial = new THREE.MeshBasicMaterial({
       color: 0x28445a,
       wireframe: true,
       transparent: true,
       opacity: 0.18,
     })
-    const box = new THREE.Mesh(boxGeometry, boxMaterial)
+
+    const box = new THREE.Mesh(
+      boxGeometry,
+      boxMaterial
+    )
+
     box.position.y = -6
     scene.add(box)
     boxRef.current = box
 
     const selectionGroup = new THREE.Group()
-    const selectionRingGeometry = new THREE.RingGeometry(0.8, 1.15, 32)
-    const selectionRingMaterial = new THREE.MeshBasicMaterial({
-      color: 0x38bdf8,
-      transparent: true,
-      opacity: 0.9,
-      side: THREE.DoubleSide,
-      depthWrite: false,
-    })
+
+    const selectionRingGeometry =
+      new THREE.RingGeometry(0.8, 1.15, 32)
+
+    const selectionRingMaterial =
+      new THREE.MeshBasicMaterial({
+        color: 0x38bdf8,
+        transparent: true,
+        opacity: 0.9,
+        side: THREE.DoubleSide,
+        depthWrite: false,
+      })
+
     const selectionRing = new THREE.Mesh(
       selectionRingGeometry,
       selectionRingMaterial
     )
+
     selectionRing.rotation.x = Math.PI / 2
     selectionGroup.add(selectionRing)
 
-    const selectionDiscGeometry = new THREE.CircleGeometry(0.45, 32)
-    const selectionDiscMaterial = new THREE.MeshBasicMaterial({
-      color: 0x38bdf8,
-      transparent: true,
-      opacity: 0.28,
-      side: THREE.DoubleSide,
-      depthWrite: false,
-    })
+    const selectionDiscGeometry =
+      new THREE.CircleGeometry(0.45, 32)
+
+    const selectionDiscMaterial =
+      new THREE.MeshBasicMaterial({
+        color: 0x38bdf8,
+        transparent: true,
+        opacity: 0.28,
+        side: THREE.DoubleSide,
+        depthWrite: false,
+      })
+
     const selectionDisc = new THREE.Mesh(
       selectionDiscGeometry,
       selectionDiscMaterial
     )
+
     selectionDisc.rotation.x = Math.PI / 2
     selectionDisc.position.y = 0.03
     selectionGroup.add(selectionDisc)
@@ -206,34 +267,64 @@ export default function OceanCube() {
     floatsGroupRef.current = floatsGroup
 
     const animate = () => {
-      frameRef.current = requestAnimationFrame(animate)
+      frameRef.current =
+        requestAnimationFrame(animate)
+
       controls.update()
       renderer.render(scene, camera)
     }
+
     animate()
 
     const resizeObserver = new ResizeObserver(() => {
-      const width = Math.max(container.clientWidth, 1)
-      const height = Math.max(container.clientHeight, 1)
+      const width = Math.max(
+        container.clientWidth,
+        1
+      )
+
+      const height = Math.max(
+        container.clientHeight,
+        1
+      )
+
       camera.aspect = width / height
       camera.updateProjectionMatrix()
       renderer.setSize(width, height)
     })
+
     resizeObserver.observe(container)
 
     return () => {
       cancelAnimationFrame(frameRef.current)
       resizeObserver.disconnect()
-      renderer.domElement.removeEventListener('pointerdown', handlePointerDown)
-      renderer.domElement.removeEventListener('pointerup', handlePointerUp)
+
+      renderer.domElement.removeEventListener(
+        'pointerdown',
+        handlePointerDown
+      )
+
+      renderer.domElement.removeEventListener(
+        'pointerup',
+        handlePointerUp
+      )
+
       controls.dispose()
 
-      planesRef.current.forEach(({ geometry, material, texture }) => {
-        geometry.dispose()
-        material.dispose()
-        texture.dispose()
-      })
+      planesRef.current.forEach(
+        ({ geometry, material, texture }) => {
+          geometry.dispose()
+          material.dispose()
+          texture.dispose()
+        }
+      )
+
       planesRef.current = []
+
+      if (currentsRef.current) {
+        disposeCurrents(currentsRef.current)
+        scene.remove(currentsRef.current)
+        currentsRef.current = null
+      }
 
       boxGeometry.dispose()
       boxMaterial.dispose()
@@ -241,7 +332,10 @@ export default function OceanCube() {
 
       if (floatsGroupRef.current) {
         floatsGroupRef.current.traverse((object) => {
-          if (object.geometry) object.geometry.dispose()
+          if (object.geometry) {
+            object.geometry.dispose()
+          }
+
           if (object.material) {
             if (Array.isArray(object.material)) {
               object.material.forEach((m) => m.dispose())
@@ -250,12 +344,16 @@ export default function OceanCube() {
             }
           }
         })
+
         scene.remove(floatsGroupRef.current)
         floatsGroupRef.current = null
       }
 
       renderer.dispose()
-      if (renderer.domElement.parentNode === container) {
+
+      if (
+        renderer.domElement.parentNode === container
+      ) {
         container.removeChild(renderer.domElement)
       }
 
@@ -269,19 +367,29 @@ export default function OceanCube() {
 
   useEffect(() => {
     if (!meta || !sceneRef.current) return
+
     let cancelled = false
 
     async function loadVolume() {
       try {
-        const volume = await getVolume(state.variable, state.time)
+        const volume = await getVolume(
+          state.variable,
+          state.time
+        )
+
         if (cancelled) return
+
         buildDepthPlanes(volume)
       } catch (err) {
-        console.error('Ocean volume load failed:', err)
+        console.error(
+          'Ocean volume load failed:',
+          err
+        )
       }
     }
 
     loadVolume()
+
     return () => {
       cancelled = true
     }
@@ -289,9 +397,14 @@ export default function OceanCube() {
 
   useEffect(() => {
     if (!planesRef.current.length) return
+
     for (const plane of planesRef.current) {
-      recolorTexture(plane.texture, plane.values)
+      recolorTexture(
+        plane.texture,
+        plane.values
+      )
     }
+
     updatePlaneOpacity()
   }, [
     state.colormap,
@@ -302,10 +415,14 @@ export default function OceanCube() {
     state.depth,
   ])
 
-  // E4: selection changed — apply immediately (normal path)
+  // E4: selection changed — apply immediately.
   useEffect(() => {
     applySelectionVisuals()
-  }, [state.selectedFloatId, state.showFloats, state.verticalExaggeration])
+  }, [
+    state.selectedFloatId,
+    state.showFloats,
+    state.verticalExaggeration,
+  ])
 
   useEffect(() => {
     const exaggeration = Math.max(
@@ -314,7 +431,8 @@ export default function OceanCube() {
     )
 
     for (const plane of planesRef.current) {
-      plane.mesh.position.y = (-plane.depth / 100) * exaggeration
+      plane.mesh.position.y =
+        (-plane.depth / 100) * exaggeration
     }
 
     if (floatsGroupRef.current) {
@@ -323,30 +441,47 @@ export default function OceanCube() {
 
     if (boxRef.current) {
       boxRef.current.scale.y = exaggeration
-      boxRef.current.position.y = -6 * exaggeration
+      boxRef.current.position.y =
+        -6 * exaggeration
     }
 
     if (controlsRef.current) {
-      controlsRef.current.target.y = -4 * exaggeration
+      controlsRef.current.target.y =
+        -4 * exaggeration
+
       controlsRef.current.update()
     }
   }, [state.verticalExaggeration])
 
-  // E4: load floats. Does NOT touch selectedFloatId. Re-applies selection
-  // visuals after load, to catch a click that raced ahead of this fetch.
+  // E4: load floats.
   useEffect(() => {
     const group = floatsGroupRef.current
+
     if (!group || !state.time) return
+
     let cancelled = false
 
     async function loadFloats() {
       try {
-        const centerTime = new Date(state.time).getTime()
-        const windowMs = 5 * 24 * 60 * 60 * 1000
-        const start = new Date(centerTime - windowMs).toISOString()
-        const end = new Date(centerTime + windowMs).toISOString()
+        const centerTime =
+          new Date(state.time).getTime()
 
-        const floats = await getFloats(start, end)
+        const windowMs =
+          5 * 24 * 60 * 60 * 1000
+
+        const start =
+          new Date(
+            centerTime - windowMs
+          ).toISOString()
+
+        const end =
+          new Date(
+            centerTime + windowMs
+          ).toISOString()
+
+        const floats =
+          await getFloats(start, end)
+
         if (cancelled) return
 
         clearFloats(group)
@@ -368,21 +503,42 @@ export default function OceanCube() {
 
           const x = float.lon - 80
           const z = float.lat - 12.5
+
           const isGlider =
-            float.platform?.toLowerCase() === 'glider'
+            float.platform?.toLowerCase() ===
+            'glider'
 
           const geometry = isGlider
-            ? new THREE.ConeGeometry(0.42, 0.9, 6)
-            : new THREE.SphereGeometry(0.42, 12, 12)
+            ? new THREE.ConeGeometry(
+              0.42,
+              0.9,
+              6
+            )
+            : new THREE.SphereGeometry(
+              0.42,
+              12,
+              12
+            )
 
-          const material = new THREE.MeshBasicMaterial({
-            color: isGlider ? 0xffb347 : 0xffffff,
-            transparent: true,
-            opacity: 0.95,
-          })
+          const material =
+            new THREE.MeshBasicMaterial({
+              color: isGlider
+                ? 0xffb347
+                : 0xffffff,
+              transparent: true,
+              opacity: 0.95,
+            })
 
-          const marker = new THREE.Mesh(geometry, material)
-          marker.position.set(x, 0.45, z)
+          const marker = new THREE.Mesh(
+            geometry,
+            material
+          )
+
+          marker.position.set(
+            x,
+            0.45,
+            z
+          )
 
           if (isGlider) {
             marker.rotation.x = Math.PI
@@ -390,12 +546,16 @@ export default function OceanCube() {
 
           marker.userData.floatId = float.id
           marker.userData.float = float
+
           group.add(marker)
         }
 
         applySelectionVisuals()
       } catch (err) {
-        console.error('Float load failed:', err)
+        console.error(
+          'Float load failed:',
+          err
+        )
       }
     }
 
@@ -416,7 +576,9 @@ export default function OceanCube() {
 
       if (object.material) {
         if (Array.isArray(object.material)) {
-          object.material.forEach((m) => m.dispose())
+          object.material.forEach(
+            (m) => m.dispose()
+          )
         } else {
           object.material.dispose()
         }
@@ -426,26 +588,416 @@ export default function OceanCube() {
 
   useEffect(() => {
     const group = floatsGroupRef.current
+
     if (!group) return
 
     for (const marker of group.children) {
       const selected =
-        marker.userData.floatId === state.selectedFloatId
+        marker.userData.floatId ===
+        state.selectedFloatId
 
-      marker.scale.setScalar(selected ? 1.6 : 1)
+      marker.scale.setScalar(
+        selected ? 1.6 : 1
+      )
 
       if (marker.material) {
-        marker.material.opacity = selected ? 1 : 0.95
+        marker.material.opacity =
+          selected ? 1 : 0.95
       }
     }
   }, [state.selectedFloatId])
 
+  // ============================================================
+  // E5 — CURRENT ARROWS
+  // ============================================================
+
+  useEffect(() => {
+    const scene = sceneRef.current
+
+    if (!scene || !state.time) return
+
+    let cancelled = false
+
+    async function loadCurrents() {
+      try {
+        const currents = await getCurrents(
+          state.time,
+          state.depth
+        )
+
+        if (cancelled) return
+
+        buildCurrents(currents)
+      } catch (err) {
+        console.error(
+          'Current data load failed:',
+          err
+        )
+      }
+    }
+
+    loadCurrents()
+
+    return () => {
+      cancelled = true
+    }
+  }, [
+    state.time,
+    state.depth,
+  ])
+
+  useEffect(() => {
+    if (currentsRef.current) {
+      currentsRef.current.visible =
+        Boolean(state.showCurrents)
+    }
+  }, [state.showCurrents])
+
+  function buildCurrents(currents) {
+    const scene = sceneRef.current
+
+    if (!scene) return
+
+    if (currentsRef.current) {
+      disposeCurrents(currentsRef.current)
+      scene.remove(currentsRef.current)
+      currentsRef.current = null
+    }
+
+    if (!state.showCurrents) {
+      return
+    }
+
+    const lats = currents.lats || []
+    const lons = currents.lons || []
+    const u = currents.u || []
+    const v = currents.v || []
+
+    if (
+      !lats.length ||
+      !lons.length ||
+      !u.length ||
+      !v.length
+    ) {
+      console.warn(
+        'Current data is missing grid/vector data'
+      )
+      return
+    }
+
+    const vectors = []
+
+    let maxSpeed = 0
+
+    for (let row = 0; row < lats.length; row++) {
+      for (
+        let column = 0;
+        column < lons.length;
+        column++
+      ) {
+        const eastward =
+          u[row]?.[column]
+
+        const northward =
+          v[row]?.[column]
+
+        if (
+          eastward === null ||
+          eastward === undefined ||
+          northward === null ||
+          northward === undefined ||
+          Number.isNaN(eastward) ||
+          Number.isNaN(northward)
+        ) {
+          continue
+        }
+
+        const speed = Math.hypot(
+          eastward,
+          northward
+        )
+
+        if (!Number.isFinite(speed) || speed <= 0) {
+          continue
+        }
+
+        maxSpeed = Math.max(
+          maxSpeed,
+          speed
+        )
+
+        vectors.push({
+          lat: lats[row],
+          lon: lons[column],
+          u: eastward,
+          v: northward,
+          speed,
+        })
+      }
+    }
+
+    if (!vectors.length || maxSpeed <= 0) {
+      console.warn(
+        'No valid current vectors found'
+      )
+      return
+    }
+
+    /*
+     * Every arrow consists of:
+     *   1 shaft
+     *   2 arrow-head segments
+     *
+     * Everything is placed into ONE LineSegments draw call.
+     */
+    const positions = []
+    const colors = []
+
+    const maxArrowLength = 1.2
+    const minArrowLength = 0.18
+    const headLength = 0.32
+
+    for (const vector of vectors) {
+      const x =
+        Number(vector.lon) - 80
+
+      const z =
+        Number(vector.lat) - 12.5
+
+      /*
+       * Eastward current:
+       *   +u -> +x
+       *
+       * Northward current:
+       *   +v -> -z
+       */
+      const direction = new THREE.Vector2(
+        vector.u,
+        -vector.v
+      )
+
+      if (direction.lengthSq() === 0) {
+        continue
+      }
+
+      direction.normalize()
+
+      const arrowLength =
+        Math.max(
+          minArrowLength,
+          Math.min(
+            maxArrowLength,
+            (vector.speed / maxSpeed) *
+            maxArrowLength
+          )
+        )
+
+      const start = new THREE.Vector3(
+        x,
+        getCurrentY(currents.depth),
+        z
+      )
+
+      const end = start.clone().add(
+        new THREE.Vector3(
+          direction.x * arrowLength,
+          0,
+          direction.y * arrowLength
+        )
+      )
+
+      // Shaft.
+      positions.push(
+        start.x,
+        start.y,
+        start.z,
+        end.x,
+        end.y,
+        end.z
+      )
+
+      // Arrow-head directions.
+      const perpendicular =
+        new THREE.Vector2(
+          -direction.y,
+          direction.x
+        )
+
+      const headBack =
+        direction.clone().multiplyScalar(
+          headLength
+        )
+
+      const headSide =
+        perpendicular.clone().multiplyScalar(
+          headLength * 0.55
+        )
+
+      const headA = end.clone().sub(
+        new THREE.Vector3(
+          headBack.x + headSide.x,
+          0,
+          headBack.y + headSide.y
+        )
+      )
+
+      const headB = end.clone().sub(
+        new THREE.Vector3(
+          headBack.x - headSide.x,
+          0,
+          headBack.y - headSide.y
+        )
+      )
+
+      // Arrow head segment A.
+      positions.push(
+        end.x,
+        end.y,
+        end.z,
+        headA.x,
+        headA.y,
+        headA.z
+      )
+
+      // Arrow head segment B.
+      positions.push(
+        end.x,
+        end.y,
+        end.z,
+        headB.x,
+        headB.y,
+        headB.z
+      )
+
+      const t =
+        maxSpeed > 0
+          ? Math.min(
+            1,
+            vector.speed / maxSpeed
+          )
+          : 0
+
+      const [r, g, b] =
+        getColor('viridis', t)
+
+      // Three vertices per segment pair.
+      // We push the same colour for all six vertices.
+      for (let i = 0; i < 6; i++) {
+        colors.push(r, g, b)
+      }
+    }
+
+    if (!positions.length) return
+
+    const geometry =
+      new THREE.BufferGeometry()
+
+    geometry.setAttribute(
+      'position',
+      new THREE.Float32BufferAttribute(
+        positions,
+        3
+      )
+    )
+
+    geometry.setAttribute(
+      'color',
+      new THREE.Float32BufferAttribute(
+        colors,
+        3
+      )
+    )
+
+    const material =
+      new THREE.LineBasicMaterial({
+        vertexColors: true,
+        transparent: true,
+        opacity: 0.9,
+        depthWrite: false,
+      })
+
+    const lines =
+      new THREE.LineSegments(
+        geometry,
+        material
+      )
+
+    lines.name = 'OceanCurrents'
+    lines.visible =
+      Boolean(state.showCurrents)
+
+    scene.add(lines)
+    currentsRef.current = lines
+
+    console.log(
+      'E5 CURRENTS:',
+      vectors.length,
+      'vectors at depth',
+      currents.depth
+    )
+  }
+
+  function getCurrentY(depth) {
+    const exaggeration = Math.max(
+      1,
+      Number(state.verticalExaggeration) || 1
+    )
+
+    const numericDepth =
+      Number(depth)
+
+    if (!Number.isFinite(numericDepth)) {
+      return 0.08
+    }
+
+    return (
+      (-numericDepth / 100) *
+      exaggeration +
+      0.08
+    )
+  }
+
+  function disposeCurrents(lines) {
+    if (!lines) return
+
+    if (lines.geometry) {
+      lines.geometry.dispose()
+    }
+
+    if (lines.material) {
+      if (Array.isArray(lines.material)) {
+        lines.material.forEach(
+          (material) => material.dispose()
+        )
+      } else {
+        lines.material.dispose()
+      }
+    }
+  }
+
+  useEffect(() => {
+    if (!currentsRef.current) return
+
+    currentsRef.current.position.y = 0
+    currentsRef.current.visible =
+      Boolean(state.showCurrents)
+  }, [
+    state.verticalExaggeration,
+    state.showCurrents,
+  ])
+
   function buildDepthPlanes(volume) {
     const scene = sceneRef.current
+
     if (!scene) return
 
     planesRef.current.forEach(
-      ({ mesh, geometry, material, texture }) => {
+      ({
+        mesh,
+        geometry,
+        material,
+        texture,
+      }) => {
         scene.remove(mesh)
         geometry.dispose()
         material.dispose()
@@ -458,67 +1010,113 @@ export default function OceanCube() {
     const lats = volume.lats || []
     const lons = volume.lons || []
     const depths = volume.depths || []
-    const valuesByDepth = volume.values || []
+    const valuesByDepth =
+      volume.values || []
 
-    if (!lats.length || !lons.length || !depths.length) {
-      console.warn('Ocean volume is missing grid/depth data')
+    if (
+      !lats.length ||
+      !lons.length ||
+      !depths.length
+    ) {
+      console.warn(
+        'Ocean volume is missing grid/depth data'
+      )
       return
     }
 
-    const width = lons[lons.length - 1] - lons[0]
-    const height = lats[lats.length - 1] - lats[0]
+    const width =
+      lons[lons.length - 1] -
+      lons[0]
 
-    const geometry = new THREE.PlaneGeometry(width, height)
+    const height =
+      lats[lats.length - 1] -
+      lats[0]
+
+    const geometry =
+      new THREE.PlaneGeometry(
+        width,
+        height
+      )
+
     geometry.rotateX(Math.PI / 2)
 
-    depths.forEach((depth, depthIndex) => {
-      const values = valuesByDepth[depthIndex]
-      if (!values) return
+    depths.forEach(
+      (depth, depthIndex) => {
+        const values =
+          valuesByDepth[depthIndex]
 
-      const texture = createDataTexture(
-        values,
-        lats.length,
-        lons.length
-      )
+        if (!values) return
 
-      const material = new THREE.MeshBasicMaterial({
-        map: texture,
-        transparent: true,
-        opacity: 0.12,
-        side: THREE.DoubleSide,
-        depthWrite: false,
-      })
+        const texture =
+          createDataTexture(
+            values,
+            lats.length,
+            lons.length
+          )
 
-      const mesh = new THREE.Mesh(geometry.clone(), material)
+        const material =
+          new THREE.MeshBasicMaterial({
+            map: texture,
+            transparent: true,
+            opacity: 0.12,
+            side: THREE.DoubleSide,
+            depthWrite: false,
+          })
 
-      mesh.position.set(
-        0,
-        (-depth / 100) * state.verticalExaggeration,
-        0
-      )
+        const mesh =
+          new THREE.Mesh(
+            geometry.clone(),
+            material
+          )
 
-      scene.add(mesh)
+        mesh.position.set(
+          0,
+          (-depth / 100) *
+          state.verticalExaggeration,
+          0
+        )
 
-      planesRef.current.push({
-        mesh,
-        geometry: mesh.geometry,
-        material,
-        texture,
-        values,
-        depth,
-      })
-    })
+        scene.add(mesh)
+
+        planesRef.current.push({
+          mesh,
+          geometry: mesh.geometry,
+          material,
+          texture,
+          values,
+          depth,
+        })
+      }
+    )
 
     updatePlaneOpacity()
   }
 
-  function createDataTexture(values, rows, columns) {
-    const data = new Uint8Array(rows * columns * 4)
+  function createDataTexture(
+    values,
+    rows,
+    columns
+  ) {
+    const data =
+      new Uint8Array(
+        rows * columns * 4
+      )
 
-    for (let row = 0; row < rows; row++) {
-      for (let column = 0; column < columns; column++) {
-        const value = values[row]?.[column]
-        const index = (row * columns + column) * 4
+    for (
+      let row = 0;
+      row < rows;
+      row++
+    ) {
+      for (
+        let column = 0;
+        column < columns;
+        column++
+      ) {
+        const value =
+          values[row]?.[column]
+
+        const index =
+          (row * columns + column) * 4
 
         if (
           value === null ||
@@ -532,55 +1130,90 @@ export default function OceanCube() {
           continue
         }
 
-        const t = valueToT(
-          value,
-          state.vmin,
-          state.vmax,
-          state.scale
-        )
+        const t =
+          valueToT(
+            value,
+            state.vmin,
+            state.vmax,
+            state.scale
+          )
 
         if (t === null) {
           data[index + 3] = 0
           continue
         }
 
-        const [r, g, b] = getColor(state.colormap, t)
+        const [r, g, b] =
+          getColor(
+            state.colormap,
+            t
+          )
 
-        data[index] = Math.round(r * 255)
-        data[index + 1] = Math.round(g * 255)
-        data[index + 2] = Math.round(b * 255)
+        data[index] =
+          Math.round(r * 255)
+
+        data[index + 1] =
+          Math.round(g * 255)
+
+        data[index + 2] =
+          Math.round(b * 255)
+
         data[index + 3] = 255
       }
     }
 
-    const texture = new THREE.DataTexture(
-      data,
-      columns,
-      rows,
-      THREE.RGBAFormat
-    )
+    const texture =
+      new THREE.DataTexture(
+        data,
+        columns,
+        rows,
+        THREE.RGBAFormat
+      )
 
     texture.needsUpdate = true
-    texture.magFilter = THREE.NearestFilter
-    texture.minFilter = THREE.NearestFilter
+    texture.magFilter =
+      THREE.NearestFilter
+    texture.minFilter =
+      THREE.NearestFilter
     texture.generateMipmaps = false
-    texture.colorSpace = THREE.SRGBColorSpace
+    texture.colorSpace =
+      THREE.SRGBColorSpace
 
     return texture
   }
 
-  function recolorTexture(texture, values) {
-    const rows = values.length
-    const columns = values[0]?.length || 0
+  function recolorTexture(
+    texture,
+    values
+  ) {
+    const rows =
+      values.length
 
-    if (!rows || !columns) return
+    const columns =
+      values[0]?.length || 0
 
-    const data = texture.image.data
+    if (!rows || !columns) {
+      return
+    }
 
-    for (let row = 0; row < rows; row++) {
-      for (let column = 0; column < columns; column++) {
-        const value = values[row]?.[column]
-        const index = (row * columns + column) * 4
+    const data =
+      texture.image.data
+
+    for (
+      let row = 0;
+      row < rows;
+      row++
+    ) {
+      for (
+        let column = 0;
+        column < columns;
+        column++
+      ) {
+        const value =
+          values[row]?.[column]
+
+        const index =
+          (row * columns + column) * 4
 
         if (
           value === null ||
@@ -591,23 +1224,34 @@ export default function OceanCube() {
           continue
         }
 
-        const t = valueToT(
-          value,
-          state.vmin,
-          state.vmax,
-          state.scale
-        )
+        const t =
+          valueToT(
+            value,
+            state.vmin,
+            state.vmax,
+            state.scale
+          )
 
         if (t === null) {
           data[index + 3] = 0
           continue
         }
 
-        const [r, g, b] = getColor(state.colormap, t)
+        const [r, g, b] =
+          getColor(
+            state.colormap,
+            t
+          )
 
-        data[index] = Math.round(r * 255)
-        data[index + 1] = Math.round(g * 255)
-        data[index + 2] = Math.round(b * 255)
+        data[index] =
+          Math.round(r * 255)
+
+        data[index + 1] =
+          Math.round(g * 255)
+
+        data[index + 2] =
+          Math.round(b * 255)
+
         data[index + 3] = 255
       }
     }
@@ -617,11 +1261,13 @@ export default function OceanCube() {
 
   function updatePlaneOpacity() {
     for (const plane of planesRef.current) {
-      const isSelected = plane.depth === state.depth
+      const isSelected =
+        plane.depth === state.depth
 
-      plane.material.opacity = isSelected
-        ? state.opacity
-        : state.opacity * 0.12
+      plane.material.opacity =
+        isSelected
+          ? state.opacity
+          : state.opacity * 0.12
     }
   }
 
@@ -638,7 +1284,8 @@ export default function OceanCube() {
           background: 'var(--bg)',
         }}
       >
-        Ocean data error: {error.message || String(error)}
+        Ocean data error:{' '}
+        {error.message || String(error)}
       </div>
     )
   }
@@ -674,3 +1321,4 @@ export default function OceanCube() {
     </div>
   )
 }
+

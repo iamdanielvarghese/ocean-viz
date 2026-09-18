@@ -20,6 +20,9 @@ export default function OceanCube() {
   const floatsGroupRef = useRef(null)
   const pointerDownRef = useRef(null)
   const currentsRef = useRef(null)
+  const volumeCacheRef = useRef(new Map())
+  const overlayRef = useRef(null)
+  const cameraPresetRef = useRef(null)
 
   const { state, update, meta, error } = useOcean()
 
@@ -266,6 +269,62 @@ export default function OceanCube() {
     scene.add(floatsGroup)
     floatsGroupRef.current = floatsGroup
 
+    // E7: camera preset + information overlay controls.
+    const preset = document.createElement('select')
+    preset.style.cssText = `
+      position:absolute; top:12px; left:12px; z-index:20;
+      padding:7px 10px; border-radius:6px;
+      border:1px solid rgba(255,255,255,.18);
+      background:rgba(7,17,31,.88); color:white;
+      font:600 12px/1.2 sans-serif; outline:none;
+    `
+    preset.innerHTML = `
+      <option value="oblique">Oblique</option>
+      <option value="top">Top</option>
+      <option value="bay">Bay of Bengal close-up</option>
+    `
+    container.appendChild(preset)
+    cameraPresetRef.current = preset
+
+    const overlay = document.createElement('div')
+    overlay.style.cssText = `
+      position:absolute; top:12px; right:12px; z-index:20;
+      min-width:190px; padding:10px 12px;
+      border-radius:8px; border:1px solid rgba(255,255,255,.12);
+      background:rgba(7,17,31,.82); color:white;
+      font:12px/1.45 sans-serif; pointer-events:none;
+      backdrop-filter:blur(4px);
+    `
+    container.appendChild(overlay)
+    overlayRef.current = overlay
+
+    const setCameraPreset = (name) => {
+      const target = new THREE.Vector3(0, -4, 0)
+
+      if (name === 'top') {
+        camera.position.set(0, 58, 0.01)
+        target.set(0, 0, 0)
+      } else if (name === 'bay') {
+        // Bay of Bengal is the eastern half of the requested region.
+        target.set(10, -3, -1)
+        camera.position.set(28, 15, 8)
+      } else {
+        camera.position.set(35, 30, 38)
+        target.set(0, -4, 0)
+      }
+
+      controls.target.copy(target)
+      camera.lookAt(target)
+      controls.update()
+    }
+
+    const handlePresetChange = (event) => {
+      setCameraPreset(event.target.value)
+    }
+
+    preset.addEventListener('change', handlePresetChange)
+    setCameraPreset('oblique')
+
     const animate = () => {
       frameRef.current =
         requestAnimationFrame(animate)
@@ -362,24 +421,55 @@ export default function OceanCube() {
       rendererRef.current = null
       controlsRef.current = null
       pointerDownRef.current = null
+
+      if (cameraPresetRef.current) {
+        cameraPresetRef.current.removeEventListener(
+          'change',
+          handlePresetChange
+        )
+        cameraPresetRef.current.remove()
+        cameraPresetRef.current = null
+      }
+
+      if (overlayRef.current) {
+        overlayRef.current.remove()
+        overlayRef.current = null
+      }
     }
   }, [])
 
+  // E6: load the selected volume from cache when possible.
+  // The first request builds the planes; later time changes update
+  // the existing textures in place.
   useEffect(() => {
-    if (!meta || !sceneRef.current) return
+    if (!meta || !sceneRef.current || !state.time) return
 
     let cancelled = false
 
     async function loadVolume() {
+      const key = `${state.variable}|${state.time}`
+
       try {
-        const volume = await getVolume(
-          state.variable,
-          state.time
-        )
+        let volume = volumeCacheRef.current.get(key)
+
+        if (!volume) {
+          volume = await getVolume(
+            state.variable,
+            state.time
+          )
+
+          if (cancelled) return
+
+          volumeCacheRef.current.set(key, volume)
+        }
 
         if (cancelled) return
 
-        buildDepthPlanes(volume)
+        if (planesRef.current.length) {
+          updateDepthPlanesInPlace(volume)
+        } else {
+          buildDepthPlanes(volume)
+        }
       } catch (err) {
         console.error(
           'Ocean volume load failed:',
@@ -394,6 +484,64 @@ export default function OceanCube() {
       cancelled = true
     }
   }, [meta, state.variable, state.time])
+
+  // Keep only the active variable's volumes in memory.
+  useEffect(() => {
+    for (const key of volumeCacheRef.current.keys()) {
+      if (!key.startsWith(`${state.variable}|`)) {
+        volumeCacheRef.current.delete(key)
+      }
+    }
+  }, [state.variable])
+
+  // E6: prefetch every available time for the active variable.
+  // This removes network latency from Play once the prefetch completes.
+  useEffect(() => {
+    if (!meta || !meta.times?.length) return
+
+    let cancelled = false
+
+    async function prefetchVolumes() {
+      for (const time of meta.times) {
+        const key = `${state.variable}|${time}`
+
+        if (volumeCacheRef.current.has(key)) {
+          continue
+        }
+
+        try {
+          const volume = await getVolume(
+            state.variable,
+            time
+          )
+
+          if (cancelled) return
+
+          volumeCacheRef.current.set(key, volume)
+        } catch (err) {
+          console.warn(
+            `E6 PREFETCH failed for ${time}:`,
+            err
+          )
+        }
+      }
+
+      if (!cancelled) {
+        console.log(
+          'E6 PREFETCH:',
+          meta.times.length,
+          'times cached for',
+          state.variable
+        )
+      }
+    }
+
+    prefetchVolumes()
+
+    return () => {
+      cancelled = true
+    }
+  }, [meta, state.variable])
 
   useEffect(() => {
     if (!planesRef.current.length) return
@@ -414,6 +562,28 @@ export default function OceanCube() {
     state.opacity,
     state.depth,
   ])
+
+  // E7: live metadata overlay.
+  useEffect(() => {
+    if (!overlayRef.current) return
+
+    const source = meta?.source || 'Unknown'
+    const variable = state.variable || '—'
+    const depth = Number.isFinite(Number(state.depth))
+      ? `${Number(state.depth).toFixed(1)} m`
+      : '—'
+    const date = state.time
+      ? new Date(state.time).toISOString().replace('T', ' ').replace('.000Z', ' UTC')
+      : '—'
+
+    overlayRef.current.innerHTML = `
+      <div style="font-weight:700;margin-bottom:4px">Ocean 3D Viz</div>
+      <div>Variable: <strong>${variable}</strong></div>
+      <div>Depth: <strong>${depth}</strong></div>
+      <div>Time: <strong>${date}</strong></div>
+      <div>Source: <strong>${source}</strong></div>
+    `
+  }, [meta, state.variable, state.depth, state.time])
 
   // E4: selection changed — apply immediately.
   useEffect(() => {
@@ -985,6 +1155,117 @@ export default function OceanCube() {
     state.verticalExaggeration,
     state.showCurrents,
   ])
+
+  // E6: keep the existing meshes/materials/textures and only replace
+  // the texture pixel data when the time changes.
+  function updateDepthPlanesInPlace(volume) {
+    const lats = volume.lats || []
+    const lons = volume.lons || []
+    const depths = volume.depths || []
+    const valuesByDepth = volume.values || []
+
+    if (
+      !lats.length ||
+      !lons.length ||
+      !depths.length
+    ) {
+      console.warn(
+        'Ocean volume is missing grid/depth data'
+      )
+      return
+    }
+
+    const sameShape =
+      planesRef.current.length === depths.length &&
+      planesRef.current.every(
+        (plane, index) =>
+          Number(plane.depth) === Number(depths[index])
+      )
+
+    if (!sameShape) {
+      buildDepthPlanes(volume)
+      return
+    }
+
+    depths.forEach((depth, depthIndex) => {
+      const plane = planesRef.current[depthIndex]
+      const values = valuesByDepth[depthIndex]
+
+      if (!plane || !values) return
+
+      updateDataTextureInPlace(
+        plane.texture,
+        values,
+        lats.length,
+        lons.length
+      )
+
+      plane.values = values
+      plane.depth = depth
+    })
+
+    updatePlaneOpacity()
+  }
+
+  function updateDataTextureInPlace(
+    texture,
+    values,
+    rows,
+    columns
+  ) {
+    if (
+      !texture?.image?.data ||
+      texture.image.width !== columns ||
+      texture.image.height !== rows
+    ) {
+      return
+    }
+
+    const data = texture.image.data
+
+    for (let row = 0; row < rows; row++) {
+      for (let column = 0; column < columns; column++) {
+        const value = values[row]?.[column]
+        const index = (row * columns + column) * 4
+
+        if (
+          value === null ||
+          value === undefined ||
+          Number.isNaN(value)
+        ) {
+          data[index] = 0
+          data[index + 1] = 0
+          data[index + 2] = 0
+          data[index + 3] = 0
+          continue
+        }
+
+        const t = valueToT(
+          value,
+          state.vmin,
+          state.vmax,
+          state.scale
+        )
+
+        if (t === null) {
+          data[index + 3] = 0
+          continue
+        }
+
+        const [r, g, b] = getColor(
+          state.colormap,
+          t
+        )
+
+        data[index] = Math.round(r * 255)
+        data[index + 1] = Math.round(g * 255)
+        data[index + 2] = Math.round(b * 255)
+        data[index + 3] = 255
+      }
+    }
+
+    texture.needsUpdate = true
+  }
 
   function buildDepthPlanes(volume) {
     const scene = sceneRef.current

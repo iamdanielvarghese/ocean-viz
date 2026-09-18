@@ -1,38 +1,38 @@
-import React from 'react';
+import React, { useEffect, useCallback, useRef } from 'react';
 import { useOcean } from '../shared/OceanState';
 import { COLORMAP_NAMES } from '../shared/colormaps';
+
+const DEFAULT_META = {
+  variables: [
+    { id: 'temperature', name: 'Temperature', units: '°C', default_min: 5, default_max: 31, default_colormap: 'thermal' },
+    { id: 'salinity', name: 'Salinity', units: 'PSU', default_min: 30, default_max: 37, default_colormap: 'haline' }
+  ],
+  depths: [0, 10, 20, 30, 50, 75, 100, 150, 200, 300, 400, 500],
+  times: [
+    '2026-09-01',
+    '2026-09-02',
+    '2026-09-03',
+    '2026-09-04',
+    '2026-09-05',
+    '2026-09-06',
+    '2026-09-07'
+  ]
+};
 
 export default function ControlPanel() {
   let oceanCtx = null;
   try {
     oceanCtx = useOcean();
   } catch {
-    // Falls back gracefully if OceanProvider is not yet mounted in App.jsx
+    // Graceful fallback if context isn't wrapped
   }
 
-  // Fallback defaults matching CONTRACT.md
-  const defaultMeta = {
-    variables: [
-      { id: 'temperature', name: 'Temperature', units: '°C' },
-      { id: 'salinity', name: 'Salinity', units: 'PSU' }
-    ],
-    depths: [0, 10, 20, 30, 50, 75, 100, 150, 200, 300, 400, 500],
-    times: [
-      '2026-09-01',
-      '2026-09-02',
-      '2026-09-03',
-      '2026-09-04',
-      '2026-09-05',
-      '2026-09-06',
-      '2026-09-07'
-    ]
-  };
+  const meta = oceanCtx?.meta || DEFAULT_META;
 
-  const meta = oceanCtx?.meta || defaultMeta;
-  const state = oceanCtx?.state || {
+  const [localState, setLocalState] = React.useState({
     variable: 'temperature',
     depth: 0,
-    time: '2026-09-01',
+    time: DEFAULT_META.times[0],
     isPlaying: false,
     colormap: 'thermal',
     vmin: 5,
@@ -41,29 +41,94 @@ export default function ControlPanel() {
     verticalExaggeration: 1,
     showFloats: true,
     showCurrents: false
-  };
+  });
 
-  // Local state hook if context is not yet present
-  const [localOverrides, setLocalOverrides] = React.useState({});
-  const activeState = { ...state, ...localOverrides };
+  const activeState = oceanCtx ? oceanCtx.state : localState;
 
-  const update = (partial) => {
+  const update = useCallback((partial) => {
     if (oceanCtx?.update) {
       oceanCtx.update(partial);
     } else {
-      setLocalOverrides((prev) => ({ ...prev, ...partial }));
+      setLocalState((prev) => {
+        const next = { ...prev, ...partial };
+        if (partial.variable && partial.variable !== prev.variable) {
+          const varDef = meta.variables.find((v) => v.id === partial.variable);
+          if (varDef) {
+            next.vmin = varDef.default_min;
+            next.vmax = varDef.default_max;
+            next.colormap = varDef.default_colormap;
+          }
+        }
+        return next;
+      });
     }
-  };
+  }, [oceanCtx, meta]);
 
   const depths = meta.depths || [];
   const times = meta.times || [];
   const currentDepthIndex = depths.indexOf(activeState.depth);
   const currentTimeIndex = times.indexOf(activeState.time);
 
-  const handleDepthStep = (delta) => {
-    const nextIdx = Math.max(0, Math.min(depths.length - 1, (currentDepthIndex >= 0 ? currentDepthIndex : 0) + delta));
+  // Keep a mutable ref of the current time index to bypass React closure traps
+  const timeIndexRef = useRef(currentTimeIndex);
+  useEffect(() => {
+    timeIndexRef.current = currentTimeIndex;
+  }, [currentTimeIndex]);
+
+  const handleDepthStep = useCallback((delta) => {
+    if (!depths.length) return;
+    const baseIdx = currentDepthIndex >= 0 ? currentDepthIndex : 0;
+    const nextIdx = Math.max(0, Math.min(depths.length - 1, baseIdx + delta));
     update({ depth: depths[nextIdx] });
-  };
+  }, [currentDepthIndex, depths, update]);
+
+  const handleTimeStep = useCallback((delta) => {
+    if (!times.length) return;
+    const baseIdx = timeIndexRef.current >= 0 ? timeIndexRef.current : 0;
+    const nextIdx = (baseIdx + delta + times.length) % times.length;
+    update({ time: times[nextIdx] });
+  }, [times, update]);
+
+  // E3: Play loop with ref-based index tracking
+  useEffect(() => {
+    if (!activeState.isPlaying || !times.length) return;
+
+    const timer = setInterval(() => {
+      const cur = timeIndexRef.current >= 0 ? timeIndexRef.current : 0;
+      const next = (cur + 1) % times.length;
+      update({ time: times[next] });
+    }, 800);
+
+    return () => clearInterval(timer);
+  }, [activeState.isPlaying, times, update]);
+
+  // E3: Global Keyboard Shortcuts
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      const tag = e.target.tagName.toLowerCase();
+      if (tag === 'input' || tag === 'select' || tag === 'textarea') return;
+
+      if (e.code === 'Space') {
+        e.preventDefault();
+        update({ isPlaying: !activeState.isPlaying });
+      } else if (e.code === 'ArrowUp') {
+        e.preventDefault();
+        handleDepthStep(-1);
+      } else if (e.code === 'ArrowDown') {
+        e.preventDefault();
+        handleDepthStep(1);
+      } else if (e.code === 'ArrowLeft') {
+        e.preventDefault();
+        handleTimeStep(-1);
+      } else if (e.code === 'ArrowRight') {
+        e.preventDefault();
+        handleTimeStep(1);
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [activeState.isPlaying, handleDepthStep, handleTimeStep, update]);
 
   return (
     <aside
@@ -214,7 +279,7 @@ export default function ControlPanel() {
               flex: 1,
               padding: '8px',
               backgroundColor: activeState.isPlaying ? 'var(--accent)' : 'var(--panel)',
-              color: 'var(--text)',
+              color: activeState.isPlaying ? '#000' : 'var(--text)',
               border: '1px solid var(--border)',
               borderRadius: '4px',
               fontWeight: 'bold',

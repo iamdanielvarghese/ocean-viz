@@ -1,6 +1,32 @@
+﻿# Node / frontend
 node_modules/
 dist/
+
+# Environment variables
+.env
 .env*
+
+# Python
 __pycache__/
+*.py[cod]
+*.egg-info/
+
+# Python virtual environments
+venv/
 .venv/
+env/
+
+# Data
 data/raw/
+*.nc
+*.nc4
+*.grib
+
+# Editor / OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Testing
+.pytest_cache/

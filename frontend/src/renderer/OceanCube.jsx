@@ -22,6 +22,7 @@ export default function OceanCube() {
   const currentsRef = useRef(null)
   const volumeCacheRef = useRef(new Map())
   const e8GroupRef = useRef(null)
+  const isothermRef = useRef(null)
   const overlayRef = useRef(null)
   const cameraPresetRef = useRef(null)
 
@@ -394,6 +395,12 @@ export default function OceanCube() {
         e8GroupRef.current = null
       }
 
+      if (isothermRef.current) {
+        disposeIsotherm(isothermRef.current)
+        scene.remove(isothermRef.current)
+        isothermRef.current = null
+      }
+
       boxGeometry.dispose()
       boxMaterial.dispose()
       boxRef.current = null
@@ -481,6 +488,7 @@ export default function OceanCube() {
         }
 
         buildE8Overlays(volume)
+        await update20CIsotherm(volume, state.time)
       } catch (err) {
         console.error(
           'Ocean volume load failed:',
@@ -553,6 +561,55 @@ export default function OceanCube() {
       cancelled = true
     }
   }, [meta, state.variable])
+
+  // E9: the 20°C isotherm is always derived from temperature data,
+  // regardless of which variable is currently displayed.
+  useEffect(() => {
+    if (!meta || !state.time) return
+
+    let cancelled = false
+
+    async function refreshIsotherm() {
+      try {
+        const temperatureKey = `temperature|${state.time}`
+        let temperatureVolume =
+          volumeCacheRef.current.get(temperatureKey)
+
+        if (!temperatureVolume) {
+          temperatureVolume = await getVolume(
+            'temperature',
+            state.time
+          )
+
+          if (cancelled) return
+
+          volumeCacheRef.current.set(
+            temperatureKey,
+            temperatureVolume
+          )
+        }
+
+        if (cancelled) return
+
+        build20CIsotherm(temperatureVolume)
+      } catch (err) {
+        console.error(
+          'E9 20°C isotherm load failed:',
+          err
+        )
+      }
+    }
+
+    refreshIsotherm()
+
+    return () => {
+      cancelled = true
+    }
+  }, [
+    meta,
+    state.time,
+    state.verticalExaggeration,
+  ])
 
   // E8: rebuild curtains/vertical section from the cached volume
   // whenever the selected section position/orientation changes.
@@ -1302,6 +1359,292 @@ export default function OceanCube() {
     texture.needsUpdate = true
   }
 
+
+
+  // ============================================================
+  // E9 — 20°C ISOTHERM SURFACE
+  // ============================================================
+
+  function build20CIsotherm(volume) {
+    const scene = sceneRef.current
+
+    if (!scene) return
+
+    if (isothermRef.current) {
+      disposeIsotherm(isothermRef.current)
+      scene.remove(isothermRef.current)
+      isothermRef.current = null
+    }
+
+    const lats = volume.lats || []
+    const lons = volume.lons || []
+    const depths = volume.depths || []
+    const valuesByDepth = volume.values || []
+
+    if (
+      lats.length < 2 ||
+      lons.length < 2 ||
+      depths.length < 2 ||
+      valuesByDepth.length < 2
+    ) {
+      console.warn(
+        'E9: temperature volume is too small for an isotherm surface'
+      )
+      return
+    }
+
+    const exaggeration = Math.max(
+      1,
+      Number(state.verticalExaggeration) || 1
+    )
+
+    /*
+     * For every horizontal grid column, find the first
+     * depth interval where temperature crosses 20°C.
+     *
+     * Depth is positive downward. The returned depth is
+     * linearly interpolated between the two surrounding
+     * depth levels.
+     */
+    const crossingDepths = Array.from(
+      { length: lats.length },
+      () => Array(lons.length).fill(null)
+    )
+
+    let validColumns = 0
+
+    for (let row = 0; row < lats.length; row++) {
+      for (let column = 0; column < lons.length; column++) {
+        let crossing = null
+
+        for (
+          let depthIndex = 0;
+          depthIndex < depths.length - 1;
+          depthIndex++
+        ) {
+          const a =
+            valuesByDepth[depthIndex]?.[row]?.[column]
+
+          const b =
+            valuesByDepth[depthIndex + 1]?.[row]?.[column]
+
+          const depthA = Number(depths[depthIndex])
+          const depthB = Number(depths[depthIndex + 1])
+
+          if (
+            !Number.isFinite(a) ||
+            !Number.isFinite(b) ||
+            !Number.isFinite(depthA) ||
+            !Number.isFinite(depthB)
+          ) {
+            continue
+          }
+
+          if (a === 20) {
+            crossing = depthA
+            break
+          }
+
+          if (b === 20) {
+            crossing = depthB
+            break
+          }
+
+          /*
+           * A crossing exists when the endpoints lie on
+           * opposite sides of 20°C.
+           */
+          if (
+            (a < 20 && b > 20) ||
+            (a > 20 && b < 20)
+          ) {
+            const denominator = b - a
+
+            if (denominator === 0) {
+              continue
+            }
+
+            const fraction =
+              (20 - a) / denominator
+
+            crossing =
+              depthA +
+              fraction * (depthB - depthA)
+
+            break
+          }
+        }
+
+        if (crossing !== null) {
+          crossingDepths[row][column] = crossing
+          validColumns += 1
+        }
+      }
+    }
+
+    if (validColumns < 3) {
+      console.warn(
+        'E9: fewer than three valid 20°C crossing columns'
+      )
+      return
+    }
+
+    const positions = []
+    const indices = []
+    const vertexValid = []
+
+    /*
+     * One vertex per horizontal grid column.
+     * World mapping matches the existing ocean cube:
+     *   longitude -> +X
+     *   latitude  -> +Z
+     *   depth     -> negative Y
+     */
+    for (let row = 0; row < lats.length; row++) {
+      for (let column = 0; column < lons.length; column++) {
+        const depth =
+          crossingDepths[row][column]
+
+        const vertexIndex =
+          row * lons.length + column
+
+        if (depth === null) {
+          positions.push(0, 0, 0)
+          vertexValid.push(false)
+          continue
+        }
+
+        positions.push(
+          Number(lons[column]) - 80,
+          (-depth / 100) * exaggeration + 0.03,
+          Number(lats[row]) - 12.5
+        )
+
+        vertexValid.push(true)
+      }
+    }
+
+    /*
+     * Only make triangles whose four surrounding grid
+     * corners have valid crossings. This prevents the
+     * surface from bridging missing-data regions.
+     */
+    for (let row = 0; row < lats.length - 1; row++) {
+      for (
+        let column = 0;
+        column < lons.length - 1;
+        column++
+      ) {
+        const a =
+          row * lons.length + column
+
+        const b = a + 1
+
+        const c =
+          (row + 1) * lons.length + column
+
+        const d = c + 1
+
+        if (
+          vertexValid[a] &&
+          vertexValid[b] &&
+          vertexValid[c]
+        ) {
+          indices.push(a, c, b)
+        }
+
+        if (
+          vertexValid[b] &&
+          vertexValid[c] &&
+          vertexValid[d]
+        ) {
+          indices.push(b, c, d)
+        }
+      }
+    }
+
+    if (!indices.length) {
+      console.warn(
+        'E9: no valid triangles for 20°C isotherm'
+      )
+      return
+    }
+
+    const geometry =
+      new THREE.BufferGeometry()
+
+    geometry.setAttribute(
+      'position',
+      new THREE.Float32BufferAttribute(
+        positions,
+        3
+      )
+    )
+
+    geometry.setIndex(indices)
+    geometry.computeVertexNormals()
+
+    const material =
+      new THREE.MeshBasicMaterial({
+        color: 0xff7a18,
+        transparent: true,
+        opacity: 0.42,
+        side: THREE.DoubleSide,
+        depthWrite: false,
+      })
+
+    const surface =
+      new THREE.Mesh(
+        geometry,
+        material
+      )
+
+    surface.name = 'E9_20C_Isotherm'
+    scene.add(surface)
+    isothermRef.current = surface
+
+    console.log(
+      'E9 ISOTHERM:',
+      validColumns,
+      'valid columns,',
+      indices.length / 3,
+      'triangles'
+    )
+  }
+
+  async function update20CIsotherm(volume, time) {
+    /*
+     * Only temperature volumes are accepted by E9.
+     * This guard prevents a salinity volume from accidentally
+     * being interpreted as temperature.
+     */
+    if (
+      volume?.variable &&
+      String(volume.variable).toLowerCase() !== 'temperature'
+    ) {
+      return
+    }
+
+    build20CIsotherm(volume)
+  }
+
+  function disposeIsotherm(surface) {
+    if (!surface) return
+
+    if (surface.geometry) {
+      surface.geometry.dispose()
+    }
+
+    if (surface.material) {
+      if (Array.isArray(surface.material)) {
+        surface.material.forEach(
+          (material) => material.dispose()
+        )
+      } else {
+        surface.material.dispose()
+      }
+    }
+  }
 
   // ============================================================
   // E8 — CURTAINS + MOVABLE VERTICAL SECTION

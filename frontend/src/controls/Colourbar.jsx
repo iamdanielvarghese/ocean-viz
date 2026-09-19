@@ -3,33 +3,32 @@ import { useOcean } from '../shared/OceanState';
 import { cssGradient } from '../shared/colormaps';
 
 export default function Colourbar({ horizontal = true, style = {} }) {
-  let oceanCtx = null;
-  try {
-    oceanCtx = useOcean();
-  } catch {
-    // Graceful fallback if rendered outside of OceanProvider
-  }
+  // Call hook unconditionally at the top level to follow React Rules of Hooks
+  const oceanCtx = useOcean();
 
   const state = oceanCtx?.state || {
     variable: 'temperature',
     colormap: 'thermal',
     vmin: 5,
-    vmax: 31
+    vmax: 31,
+    scale: 'linear'
   };
 
   const meta = oceanCtx?.meta;
   const currentVar = meta?.variables?.find((v) => v.id === state.variable);
 
-  let label = currentVar?.name || currentVar?.standard_name || state.variable;
-  if (state.variable.includes('temp')) label = 'Temperature';
-  if (state.variable.includes('sal')) label = 'Salinity';
+  let label = currentVar?.label || currentVar?.name || currentVar?.standard_name || state.variable;
+  if (state.variable === 'temperature') label = 'Temperature';
+  if (state.variable === 'salinity') label = 'Salinity';
   const units = currentVar?.units ? ` (${currentVar.units})` : '';
 
   const gradient = cssGradient(state.colormap, horizontal ? 'to right' : 'to top', 16);
 
-  const min = state.vmin ?? 0;
-  const max = state.vmax ?? 100;
-  const mid = ((Number(min) + Number(max)) / 2).toFixed(1);
+  const min = Number(state.vmin ?? 0);
+  const max = Number(state.vmax ?? 100);
+
+  const formatTick = (val) => (Number.isInteger(val) ? val : Number(val).toFixed(1));
+  const mid = formatTick((min + max) / 2);
 
   return (
     <div
@@ -74,9 +73,9 @@ export default function Colourbar({ horizontal = true, style = {} }) {
           fontFamily: 'monospace'
         }}
       >
-        <span>{min}</span>
+        <span>{formatTick(min)}</span>
         <span>{mid}</span>
-        <span>{max}</span>
+        <span>{formatTick(max)}</span>
       </div>
     </div>
   );

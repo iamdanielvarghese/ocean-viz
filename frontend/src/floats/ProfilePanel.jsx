@@ -30,13 +30,13 @@ function nearestTime(times, targetTime) {
   let best = times[0]
   let bestDiff = Math.abs(
     new Date(times[0]).getTime() -
-      new Date(targetTime).getTime()
+    new Date(targetTime).getTime()
   )
 
   for (const time of times) {
     const diff = Math.abs(
       new Date(time).getTime() -
-        new Date(targetTime).getTime()
+      new Date(targetTime).getTime()
     )
 
     if (diff < bestDiff) {
@@ -70,9 +70,8 @@ function findNearbyValue(
   lonIndex
 ) {
   const maxDepthIndex = values.length - 1
-  const maxLatIndex = values[0]?.length - 1 ?? -1
-  const maxLonIndex =
-    values[0]?.[0]?.length - 1 ?? -1
+  const maxLatIndex = (values[0]?.length ?? 0) - 1
+  const maxLonIndex = (values[0]?.[0]?.length ?? 0) - 1
 
   const exactValue =
     values[depthIndex]?.[latIndex]?.[lonIndex] ?? null
@@ -254,7 +253,7 @@ function ProfileChart({
 
   const delta =
     surfaceFloat !== null &&
-    surfaceModel !== null
+      surfaceModel !== null
       ? surfaceFloat - surfaceModel
       : null
 
@@ -415,7 +414,7 @@ export default function ProfilePanel() {
         if (!cancelled) {
           setError(
             err?.message ||
-              'Failed to load profile data.'
+            'Failed to load profile data.'
           )
         }
       } finally {

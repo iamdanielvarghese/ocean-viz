@@ -264,6 +264,8 @@ function ProfileChart({
         label: 'Float Observation',
         data: observedData,
         showLine: true,
+        borderColor: '#4fc3f7',
+        backgroundColor: '#4fc3f7',
         borderWidth: 2,
         pointRadius: 3,
       },
@@ -271,6 +273,8 @@ function ProfileChart({
         label: 'Model (Copernicus)',
         data: modelData,
         showLine: true,
+        borderColor: '#ffb74d',
+        backgroundColor: '#ffb74d',
         borderWidth: 2,
         borderDash: [6, 6],
         pointRadius: 2,
@@ -281,13 +285,17 @@ function ProfileChart({
   const chartOptions = {
     responsive: true,
     maintainAspectRatio: false,
+    color: '#d7e3ea',
     plugins: {
       legend: {
         display: true,
+        labels: { color: '#d7e3ea', boxWidth: 12, font: { size: 10 } },
       },
       title: {
         display: true,
         text: title,
+        color: '#d7e3ea',
+        font: { size: 12 },
       },
     },
     scales: {
@@ -296,21 +304,29 @@ function ProfileChart({
         title: {
           display: true,
           text: `${xLabel} (${units})`,
+          color: '#9fb3c2',
+          font: { size: 10 },
         },
+        ticks: { color: '#9fb3c2', font: { size: 9 } },
+        grid: { color: 'rgba(255, 255, 255, 0.07)' },
       },
       y: {
         reverse: true,
         title: {
           display: true,
           text: 'Depth (m)',
+          color: '#9fb3c2',
+          font: { size: 10 },
         },
+        ticks: { color: '#9fb3c2', font: { size: 9 } },
+        grid: { color: 'rgba(255, 255, 255, 0.07)' },
       },
     },
   }
 
   return (
-    <div style={{ marginBottom: 24 }}>
-      <div style={{ height: 360 }}>
+    <div style={{ flex: '1 1 240px', minWidth: 220 }}>
+      <div style={{ height: 220 }}>
         <Scatter
           data={chartData}
           options={chartOptions}
@@ -319,9 +335,10 @@ function ProfileChart({
 
       <div
         style={{
-          marginTop: 8,
-          fontSize: 14,
+          marginTop: 4,
+          fontSize: 12,
           fontWeight: 500,
+          color: '#d7e3ea',
         }}
       >
         Surface: float {formatValue(surfaceFloat)} vs model{' '}
@@ -333,128 +350,137 @@ function ProfileChart({
 }
 
 export default function ProfilePanel() {
-  const { state, meta } = useOcean()
+  const { state, meta, update } = useOcean()
 
   const selectedFloatId = state.selectedFloatId
   const time = state.time
 
   const [profile, setProfile] = useState(null)
-  const [temperatureVolume, setTemperatureVolume] =
-    useState(null)
-  const [salinityVolume, setSalinityVolume] =
-    useState(null)
-  const [modelTime, setModelTime] = useState(null)
+  const [volumes, setVolumes] = useState(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
 
+  /* Load the profile only when the selected float changes. */
   useEffect(() => {
     if (!selectedFloatId) {
       setProfile(null)
-      setTemperatureVolume(null)
-      setSalinityVolume(null)
-      setModelTime(null)
+      setVolumes(null)
       setError(null)
+      setLoading(false)
       return
     }
 
     let cancelled = false
 
-    async function loadProfile() {
-      setLoading(true)
-      setError(null)
+    setLoading(true)
+    setError(null)
+    setVolumes(null)
 
-      try {
-        const loadedProfile =
-          await getProfile(selectedFloatId)
-
-        if (cancelled) {
-          return
-        }
-
-        const nearestModelTime = nearestTime(
-          meta?.times || [],
-          time
-        )
-
-        if (!nearestModelTime) {
-          throw new Error(
-            'No model time is available.'
-          )
-        }
-
-        const [
-          loadedTemperatureVolume,
-          loadedSalinityVolume,
-        ] = await Promise.all([
-          getVolume(
-            'temperature',
-            nearestModelTime
-          ),
-          getVolume(
-            'salinity',
-            nearestModelTime
-          ),
-        ])
-
-        if (cancelled) {
-          return
-        }
-
-        setProfile(loadedProfile)
-
-        setTemperatureVolume(
-          loadedTemperatureVolume
-        )
-
-        setSalinityVolume(
-          loadedSalinityVolume
-        )
-
-        setModelTime(nearestModelTime)
-      } catch (err) {
+    getProfile(selectedFloatId)
+      .then((loadedProfile) => {
+        if (!cancelled) setProfile(loadedProfile)
+      })
+      .catch((err) => {
         if (!cancelled) {
-          setError(
-            err?.message ||
-              'Failed to load profile data.'
-          )
+          setError(err?.message || 'Failed to load profile data.')
         }
-      } finally {
-        if (!cancelled) {
-          setLoading(false)
-        }
-      }
-    }
-
-    loadProfile()
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false)
+      })
 
     return () => {
       cancelled = true
     }
-  }, [
-    selectedFloatId,
-    time,
-    meta?.times,
-  ])
+  }, [selectedFloatId])
+
+  /* Model volumes track the animation time but swap silently,
+     so the charts never unmount into a loading flash. */
+  useEffect(() => {
+    if (!profile || !meta?.times?.length) return
+
+    const nearestModelTime = nearestTime(meta.times, time)
+    if (!nearestModelTime) return
+
+    let cancelled = false
+
+    Promise.all([
+      getVolume('temperature', nearestModelTime),
+      getVolume('salinity', nearestModelTime),
+    ])
+      .then(([temperatureVolume, salinityVolume]) => {
+        if (!cancelled) {
+          setVolumes({
+            temperature: temperatureVolume,
+            salinity: salinityVolume,
+            modelTime: nearestModelTime,
+          })
+        }
+      })
+      .catch(() => {
+        /* keep the last good volumes while animating */
+      })
+
+    return () => {
+      cancelled = true
+    }
+  }, [profile, meta?.times, time])
+
+  const panelStyle = {
+    flex: 1,
+    minHeight: 0,
+    overflowY: 'auto',
+    padding: 12,
+    background: 'var(--panel, #111823)',
+    color: 'var(--text, #d7e3ea)',
+    boxSizing: 'border-box',
+  }
 
   if (!selectedFloatId) {
     return (
-      <div>
-        Select a float to view its profile.
+      <div
+        style={{
+          ...panelStyle,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          color: 'var(--muted, #7d93a5)',
+          textAlign: 'center',
+        }}
+      >
+        Select a float on the map to view its profile.
       </div>
     )
   }
 
   if (loading) {
     return (
-      <div>
-        Loading profile...
+      <div
+        style={{
+          ...panelStyle,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          color: 'var(--muted, #7d93a5)',
+        }}
+      >
+        Loading profile…
       </div>
     )
   }
 
   if (error) {
     return (
-      <div>
+      <div
+        style={{
+          ...panelStyle,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          color: 'var(--danger, #ff6b6b)',
+          textAlign: 'center',
+        }}
+      >
         Error: {error}
       </div>
     )
@@ -464,69 +490,85 @@ export default function ProfilePanel() {
     return null
   }
 
+  const metaRow = { display: 'grid', gridTemplateColumns: 'auto 1fr', gap: '2px 10px', fontSize: '0.78rem' }
+
   return (
-    <div
-      style={{
-        padding: 16,
-        background: '#ffffff',
-      }}
-    >
-      <h2>
-        Float Profile: {profile.id}
-      </h2>
-
-      <div style={{ marginBottom: 16 }}>
-        <div>
-          <strong>Platform:</strong>{' '}
-          {profile.platform}
-        </div>
-
-        <div>
-          <strong>WMO:</strong>{' '}
-          {profile.wmo}
-        </div>
-
-        <div>
-          <strong>Cycle:</strong>{' '}
-          {profile.cycle}
-        </div>
-
-        <div>
-          <strong>Location:</strong>{' '}
-          {Number(profile.lat).toFixed(3)},{' '}
-          {Number(profile.lon).toFixed(3)}
-        </div>
-
-        <div>
-          <strong>Float time:</strong>{' '}
-          {profile.time}
-        </div>
-
-        <div>
-          <strong>Model time:</strong>{' '}
-          {modelTime}
-        </div>
+    <div style={panelStyle}>
+      <div
+        style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'baseline',
+          gap: 8,
+        }}
+      >
+        <h2 style={{ margin: 0, fontSize: '0.95rem' }}>
+          Float Profile: {profile.id}
+        </h2>
+        <button
+          type="button"
+          onClick={() => update({ selectedFloatId: null })}
+          style={{
+            background: 'none',
+            border: '1px solid var(--border, #223140)',
+            borderRadius: 4,
+            color: 'var(--muted, #7d93a5)',
+            fontSize: '0.72rem',
+            padding: '2px 8px',
+            cursor: 'pointer',
+          }}
+        >
+          ✕ Clear
+        </button>
       </div>
 
-      <ProfileChart
-        title="Temperature vs Depth"
-        xLabel="Temperature"
-        units="degC"
-        depth={profile.depth}
-        observedValues={profile.temperature}
-        modelVolume={temperatureVolume}
-        profile={profile}
-      />
+      <div style={{ ...metaRow, margin: '10px 0 12px' }}>
+        <strong>Platform:</strong>
+        <span>{profile.platform}</span>
 
-      <ProfileChart
-        title="Salinity vs Depth"
-        xLabel="Salinity"
-        units="PSU"
-        depth={profile.depth}
-        observedValues={profile.salinity}
-        modelVolume={salinityVolume}
-        profile={profile}
-      />
+        {profile.wmo && (
+          <>
+            <strong>WMO:</strong>
+            <span>{profile.wmo}</span>
+          </>
+        )}
+
+        <strong>Cycle:</strong>
+        <span>{profile.cycle}</span>
+
+        <strong>Location:</strong>
+        <span>
+          {Number(profile.lat).toFixed(3)}, {Number(profile.lon).toFixed(3)}
+        </span>
+
+        <strong>Float time:</strong>
+        <span>{profile.time}</span>
+
+        <strong>Model time:</strong>
+        <span>{volumes?.modelTime}</span>
+      </div>
+
+      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 12 }}>
+        <ProfileChart
+          title="Temperature vs Depth"
+          xLabel="Temperature"
+          units="degC"
+          depth={profile.depth}
+          observedValues={profile.temperature}
+          modelVolume={volumes?.temperature}
+          profile={profile}
+        />
+
+        <ProfileChart
+          title="Salinity vs Depth"
+          xLabel="Salinity"
+          units="PSU"
+          depth={profile.depth}
+          observedValues={profile.salinity}
+          modelVolume={volumes?.salinity}
+          profile={profile}
+        />
+      </div>
     </div>
   )
 }

@@ -34,13 +34,16 @@ function SelectedFloatController({ floats, selectedFloatId }) {
       return
     }
 
-    map.flyTo(
-      [selectedFloat.lat, selectedFloat.lon],
-      5,
-      {
-        duration: 0.8,
-      },
-    )
+    /* Only recenter when the float is outside the current view,
+       so clicking a visible marker never yanks the map around. */
+    const target = [selectedFloat.lat, selectedFloat.lon]
+    if (map.getBounds().pad(-0.05).contains(target)) {
+      return
+    }
+
+    map.flyTo(target, Math.max(map.getZoom(), 5), {
+      duration: 0.8,
+    })
   }, [map, floats, selectedFloatId])
 
   return null
@@ -101,7 +104,7 @@ export default function FloatMap() {
       style={{
         width: '100%',
         height: '100%',
-        minHeight: '300px',
+        minHeight: 0,
         overflow: 'hidden',
         background: '#071522',
         position: 'relative',
@@ -112,7 +115,6 @@ export default function FloatMap() {
         style={{
           width: '100%',
           height: '100%',
-          minHeight: '300px',
           background: '#071522',
         }}
         zoomControl={true}

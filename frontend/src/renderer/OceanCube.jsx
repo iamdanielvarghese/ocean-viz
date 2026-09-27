@@ -3,7 +3,7 @@ import * as THREE from 'three'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
 
 import { useOcean } from '../shared/OceanState'
-import { getVolume } from '../shared/api'
+import { getVolume, getCurrents } from '../shared/api'
 import { getColor, valueToT } from '../shared/colormaps'
 
 export default function OceanCube() {
@@ -15,6 +15,7 @@ export default function OceanCube() {
   const planesRef = useRef([])
   const frameRef = useRef(null)
   const boxRef = useRef(null)
+  const currentsRef = useRef(null)
 
   const { state, meta, error } = useOcean()
 
@@ -123,6 +124,12 @@ export default function OceanCube() {
 
       planesRef.current = []
 
+      if (currentsRef.current) {
+        currentsRef.current.geometry.dispose()
+        currentsRef.current.material.dispose()
+        currentsRef.current = null
+      }
+
       boxGeometry.dispose()
       boxMaterial.dispose()
       boxRef.current = null
@@ -188,9 +195,150 @@ export default function OceanCube() {
   ])
 
   /*
- * E3 — Vertical exaggeration.
- * Reposition existing geometry only; DataTextures are not rebuilt.
- */
+   * E5 — Current vectors at the selected depth (contract FR-13).
+   * One LineSegments draw call; arrows coloured by speed; nulls skipped.
+   */
+  useEffect(() => {
+    const scene = sceneRef.current
+    if (!scene || !meta) return
+
+    let cancelled = false
+
+    function clearCurrents() {
+      const current = currentsRef.current
+      if (current && scene) {
+        scene.remove(current.object)
+        current.geometry.dispose()
+        current.material.dispose()
+      }
+      currentsRef.current = null
+    }
+
+    if (!state.showCurrents || state.time == null || state.depth == null) {
+      clearCurrents()
+      return
+    }
+
+    async function loadCurrents() {
+      try {
+        const data = await getCurrents(state.time, state.depth)
+
+        if (cancelled) return
+
+        clearCurrents()
+        if (!sceneRef.current) return
+
+        const lats = data.lats || []
+        const lons = data.lons || []
+        const uGrid = data.u || []
+        const vGrid = data.v || []
+
+        if (!lats.length || !lons.length) return
+
+        const lonMin = lons[0]
+        const latMin = lats[0]
+        const lonSpan = lons[lons.length - 1] - lonMin || 1
+        const latSpan = lats[lats.length - 1] - latMin || 1
+        const planeWidth = lonSpan
+        const planeHeight = latSpan
+        const exaggeration = Math.max(1, Number(state.verticalExaggeration) || 1)
+        const yBase = (-data.depth / 100) * exaggeration
+
+        const MAX_SPEED = 0.8
+        const slowColor = new THREE.Color('#31c4f3')
+        const fastColor = new THREE.Color('#f4f7fb')
+
+        const positions = []
+        const colors = []
+
+        for (let i = 0; i < lats.length; i++) {
+          for (let j = 0; j < lons.length; j++) {
+            const u = uGrid[i]?.[j]
+            const v = vGrid[i]?.[j]
+
+            if (u == null || v == null) continue
+
+            const speed = Math.hypot(u, v)
+            if (speed < 0.02) continue
+
+            /* Same mapping as the depth planes: x = lon, z = lat,
+               both centred on the origin. */
+            const x = ((lons[j] - lonMin) / lonSpan) * planeWidth - planeWidth / 2
+            const z = ((lats[i] - latMin) / latSpan) * planeHeight - planeHeight / 2
+
+            const len = Math.min(0.6 + speed * 2.2, 2.5)
+            const dx = (u / speed) * len
+            const dz = (v / speed) * len
+            const tipX = x + dx
+            const tipZ = z + dz
+            /* Head barbs: back from the tip, either side of the shaft */
+            const backX = tipX - dx * 0.32
+            const backZ = tipZ - dz * 0.32
+            const px = -dz * 0.2
+            const pz = dx * 0.2
+
+            const t = Math.min(speed / MAX_SPEED, 1)
+            const color = slowColor.clone().lerp(fastColor, t)
+
+            /* vertices at y = 0; the layer is positioned via object.position.y
+               so vertical-exaggeration changes don't need a rebuild */
+            positions.push(x, 0, z, tipX, 0, tipZ)
+            positions.push(tipX, 0, tipZ, backX + px, 0, backZ + pz)
+            positions.push(tipX, 0, tipZ, backX - px, 0, backZ - pz)
+
+            /* 3 segments = 6 vertices; every vertex needs a colour or the
+               buffer runs short and Three.js renders the rest black */
+            for (let s = 0; s < 6; s++) {
+              colors.push(color.r, color.g, color.b)
+            }
+          }
+        }
+
+        if (!positions.length) return
+
+        const geometry = new THREE.BufferGeometry()
+        geometry.setAttribute(
+          'position',
+          new THREE.Float32BufferAttribute(positions, 3)
+        )
+        geometry.setAttribute(
+          'color',
+          new THREE.Float32BufferAttribute(colors, 3)
+        )
+
+        const material = new THREE.LineBasicMaterial({
+          vertexColors: true,
+          transparent: true,
+          opacity: 0.95
+        })
+
+        const lines = new THREE.LineSegments(geometry, material)
+        lines.renderOrder = 10
+        lines.position.y = yBase
+        scene.add(lines)
+
+        currentsRef.current = {
+          object: lines,
+          geometry,
+          material,
+          depthUsed: data.depth
+        }
+      } catch (err) {
+        console.error('Currents load failed:', err)
+      }
+    }
+
+    loadCurrents()
+
+    return () => {
+      cancelled = true
+    }
+  }, [meta, state.showCurrents, state.time, state.depth])
+
+  /*
+   * E3 — Vertical exaggeration.
+   * Reposition existing geometry only; DataTextures are not rebuilt.
+   */
   useEffect(() => {
     const exaggeration = Math.max(
       1,
@@ -210,6 +358,12 @@ export default function OceanCube() {
     if (controlsRef.current) {
       controlsRef.current.target.y = -4 * exaggeration
       controlsRef.current.update()
+    }
+
+    /* Keep the currents layer at its depth under the new exaggeration */
+    if (currentsRef.current) {
+      currentsRef.current.object.position.y =
+        (-currentsRef.current.depthUsed / 100) * exaggeration
     }
   }, [state.verticalExaggeration])
 

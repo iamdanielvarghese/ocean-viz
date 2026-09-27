@@ -176,10 +176,11 @@ export default function ControlPanel() {
   return (
     <aside
       style={{
-        width: '320px',
-        minWidth: '320px',
+        /* Width comes from the content (min-content of the controls);
+           the App grid sizes the column from this element. */
+        width: '288px',
         height: '100%',
-        maxHeight: '100vh',
+        minHeight: 0,
         overflowY: 'auto',
         backgroundColor: 'var(--panel, #121212)',
         borderRight: '1px solid var(--border, #2a2a2a)',

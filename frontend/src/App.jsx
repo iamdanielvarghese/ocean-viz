@@ -11,18 +11,27 @@ function App() {
       <div
         style={{
           display: 'grid',
-          gridTemplateColumns: '240px 1fr 320px',
-          gridTemplateRows: '1fr 1fr',
-          minHeight: '100vh',
+          /* Track sizes come from the panels' own widths (aside forces 320px) so
+             nothing is clipped; the renderer takes the remaining space. */
+          gridTemplateColumns: 'auto minmax(0, 1fr) auto',
+          gridTemplateRows: 'minmax(0, 5fr) minmax(0, 4fr)',
+          height: '100vh',
+          width: '100vw',
           gap: '1px',
-          background: '#333',
+          background: 'var(--border, #333)',
+          overflow: 'hidden',
+          boxSizing: 'border-box',
         }}
       >
         <aside
           style={{
             gridRow: '1 / 3',
-            background: '#111',
-            padding: '16px',
+            background: 'var(--panel, #111)',
+            padding: '0',
+            minHeight: 0,
+            overflow: 'hidden',
+            display: 'flex',
+            flexDirection: 'column',
           }}
         >
           <ControlPanel />
@@ -32,7 +41,10 @@ function App() {
           style={{
             gridRow: '1 / 3',
             background: '#080c12',
-            padding: '16px',
+            padding: '8px',
+            minHeight: 0,
+            minWidth: 0,
+            overflow: 'hidden',
           }}
         >
           <OceanCube />
@@ -40,8 +52,11 @@ function App() {
 
         <section
           style={{
-            background: '#111',
-            padding: '16px',
+            background: 'var(--panel, #111)',
+            padding: '8px',
+            minHeight: 0,
+            minWidth: 0,
+            overflow: 'hidden',
           }}
         >
           <FloatMap />
@@ -49,8 +64,13 @@ function App() {
 
         <section
           style={{
-            background: '#111',
-            padding: '16px',
+            background: 'var(--panel, #111)',
+            padding: '8px',
+            minHeight: 0,
+            minWidth: 0,
+            overflow: 'hidden',
+            display: 'flex',
+            flexDirection: 'column',
           }}
         >
           <ProfilePanel />

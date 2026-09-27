@@ -187,12 +187,15 @@ def get_currents_real(time: str, depth: float):
     d_idx = depths.index(used_depth)
     u = ds["current_u"].isel(time=idx, depth=d_idx)
     v = ds["current_v"].isel(time=idx, depth=d_idx)
+    # Contract §3.5: coarser grid, every 2nd lat/lon point (1.0 deg stride)
+    u = u.isel(lat=slice(None, None, 2), lon=slice(None, None, 2))
+    v = v.isel(lat=slice(None, None, 2), lon=slice(None, None, 2))
     return {
         "time": time,
         "depth": used_depth,
         "units": "m/s",
-        "lats": [float(x) for x in ds["lat"].values],
-        "lons": [float(x) for x in ds["lon"].values],
+        "lats": [float(x) for x in ds["lat"].values][::2],
+        "lons": [float(x) for x in ds["lon"].values][::2],
         "u": nan_to_none(u.values.tolist()),
         "v": nan_to_none(v.values.tolist()),
     }

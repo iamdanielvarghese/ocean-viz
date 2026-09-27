@@ -1,6 +1,7 @@
 import React, { useEffect, useCallback, useRef } from 'react';
 import { useOcean } from '../shared/OceanState';
 import { COLORMAP_NAMES } from '../shared/colormaps';
+import Colourbar from './Colourbar';
 
 const DEFAULT_META = {
   variables: [
@@ -344,6 +345,7 @@ export default function ControlPanel() {
       >
         <h3 style={{ margin: '0', fontSize: '0.9rem' }}>Colour Scale</h3>
 
+
         <div>
           <label style={{ fontSize: '0.78rem', color: 'var(--muted)', display: 'block', marginBottom: '4px' }}>
             Palette
@@ -368,6 +370,8 @@ export default function ControlPanel() {
             ))}
           </select>
         </div>
+
+        <Colourbar />
 
         <div style={{ display: 'flex', gap: '8px' }}>
           <div style={{ flex: 1 }}>

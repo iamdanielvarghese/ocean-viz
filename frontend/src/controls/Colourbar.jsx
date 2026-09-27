@@ -2,6 +2,7 @@ import React from 'react';
 import { useOcean } from '../shared/OceanState';
 import { cssGradient } from '../shared/colormaps';
 
+
 export default function Colourbar({ horizontal = true, style = {} }) {
   let oceanCtx = null;
   try {

@@ -1,0 +1,121 @@
+SIH points
+
+Reel 1
+
+Talk to the real user facing the problem
+Datasets study and check thoroughly
+Demo link important
+Keep it simple (One clear feature)
+
+
+2. Reel 2
+
+They have already given the format , don't change the format
+every slide has an evaluation criteria :
+2nd slide = idea , solution , uniqness, novelty
+3rd slide = Technical approach what technology stack are u using, what will ur flow look like, include diagram
+4th slide = Feasability, can u build this product? is ur solution/idea practical or possible?, potential challenges and risks
+5th slide - Impact and benefits, impact should be like that they discard their current system to use our system
+
+
+3. Reel 3
+
+Read the PS properly
+Reasearch your assigned ministry's past work - judges love teams who "get" the domain
+
+4. Reel 4 ( tools)
+https://www.instagram.com/p/DdhxX6vDGsk/?img_index=6&stkn=MXdzYjBkMmU5OXd2Yg==
+
+
+5. Video 1
+
+ Don't delay to the last minute for submission ( aim 28th sep , final 30th)
+Don't over promise in the ppt , it should be possible to build this in 36 hours
+Major thing is that because of AI , anyone can build prototypes. So importance of prototypes has decreased , the main focus should be on how u are building it, your knowledge of the whole system, communication skills and how you are pitching project, what is the structure and algorithm behind it
+
+
+6. Video 2
+
+Have u understood the problem and does your solution create an impact? = Explain this in one sentence so that a 10 year old would understand and do we know exactly who is affected and why the problem exists.
+Feasibility check = do we already have , or can quickly learn , the skills to build this ? And can we build a working version of this in 36 to 72 hours realistically?
+Who is facing the problem ?
+Why does the problem exist?
+Why does it matter? What impact?
+What already exists?
+What can we innovate?
+We have to do SWOT analysis 
+
+
+7. Video 3
+
+https://www.codehuntersacademy.com/sih-2026-ps( go to this website , to find full analysis of our problem statement)
+
+8. Video 4
+
+importance of building a prototype gone down 
+Main Importance = How you have build it ? , What is the structure behind your prototype?, Do you know what you have build ?
+Building a prototype  : 
+
+	1. Problem Understanding
+   
+	a. Who is bleeding? (Target user clarity)   
+	b. What is the real pain? (Root cause > surface issue)   
+	c. Why now? (Urgency & market timing)   
+	d. If the problem is weak, the product is weak.   
+
+
+	2. Solution Breakdown
+
+	a. List 15 possible solutions   
+	b. Cut low-impact noise   
+	c. Pick top 3 to 4 core levers   
+	d. Clarity comes from elimination   
+
+
+	3. The Core Prototype
+
+	a. Ship the 3 core features only   
+	b. Solve 80% of pain  
+	c. Test fast. Iterate faster.  
+	d. MVP not equal to Half product
+
+
+	4. Add On & Optimizations
+
+	a. Add features that boost core   
+	b. No feature dumping   
+	c. Optimize speed, UX, cost   
+	d. Enhancement > Expansion
+
+
+	5. Automations & Final Build  
+
+	a. Automate repetitive systems   
+	b. Integrate AI after clarity   
+	c. Scale without increasing chaos   
+	d. AI amplifies Clarity, magnifies Confusion
+
+
+	6. The Current Reality  
+
+ 	Problem < Solution < Prototype < Add On < Optimize < Automate
+
+
+
+
+9. Video 5
+
+How to Structure the ppt :
+First Slide - have u understood the problem , how are u addressing the problem , what is the innovation and uniqness 
+Second Slide ( Important) - What is the technical stack and what is the flow diagram ? Mention the tech stack and why we used it instead of the alternatives.( Napkin.ai and lucid.ai for flow diagram creation)( If you want you can add demo link and GitHub link in this slide)
+Third Slide - What is feasibility? = Can u actually build or not ? , What is viability ? = The long term sustainability. Four key terms(technical, financial, Market, operational) for these questions = Analysis of the feasibility of the idea and Potential Challenges and risks(And when mentioning risks , tell the plan to eradicate those risks too).
+Fourth Slide - WHat is the impact on ****************************
+Fifth slide - Research papers , Elsevier , science Direct 
+How to pitch - Know ur judges , don't exaggerate stuff. Business plan is underrated
+
+
+Small point( While uploading demo link , if youtube don't post as public , but as unliste or share a google drive link)( Add statistical data and explanantion if possible )
+
+  
+
+

@@ -28,5 +28,8 @@ data/raw/
 .DS_Store
 Thumbs.db
 
+# AI workspace (local only)
+.freebuff/
+
 # Testing
 .pytest_cache/

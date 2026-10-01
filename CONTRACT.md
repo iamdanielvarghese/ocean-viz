@@ -1,5 +1,5 @@
 # TEAM CONTRACT — Ocean 3D Viz (SIH PS 26067)
-**Version: v1.0 (16 Sept 2026)** · Owner: Team Lead · Only the lead edits this file.
+**Version: v1.1 (29 Sept 2026)** · Owner: Team Lead · Only the lead edits this file.
 If anything here looks wrong or blocks you, message the lead. Do NOT work around it silently.
 
 ---
@@ -153,6 +153,9 @@ update({ depth: 100 })   // pass only the keys you are changing
 | `verticalExaggeration` | number 1..10 | Controls | depth stretch in the 3D cube |
 | `showFloats` | boolean | Controls | show float markers (map and cube) |
 | `showCurrents` | boolean | Controls | show current arrows (cube) |
+| `viewMode` | `'regional' \| 'local'` | Regional view + Renderer | `'regional'` = full-map overview (default), `'local'` = dashboard with 3D cube. Entering `'local'` with a selection focuses the cube on that platform |
+| `showSection` | boolean | Controls (Advanced) | show the movable vertical section in the cube (default false) |
+| `showIsotherm` | boolean | Controls (Advanced) | show the 20°C isotherm surface in the cube (default false) |
 | `selectedFloatId` | string \| null | Floats map AND Renderer | currently selected profile |
 
 Data access: import only from `src/shared/api.js` (`getMeta, getSlice, getVolume, getCurrents, getFloats, getProfile, getCoastline, nearestIndex`). Never call `fetch` directly.
@@ -171,4 +174,5 @@ Member 3 produces, and Member 4's backend reads:
 - Backend: `cd backend && uvicorn main:app --reload --port 8000`. Environment variable `DATA_MODE=mock` or `DATA_MODE=real` (default `real`, falling back to mock if `data/processed/model.nc` is missing).
 
 ## §7. Change log
+- v1.1 (29 Sept): added `viewMode`, `showSection`, `showIsotherm` for the two-level experience (regional overview → dive → local 3D). The cube renders a model sub-volume around the selected platform when one is selected; the full grid otherwise. No API shapes changed.
 - v1.0 (16 Sept): first locked version.

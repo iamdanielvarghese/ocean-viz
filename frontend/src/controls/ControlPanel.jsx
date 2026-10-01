@@ -1,6 +1,7 @@
 import React, { useEffect, useCallback, useMemo, useState } from 'react';
 import { useOcean } from '../shared/OceanState';
 import { COLORMAP_NAMES } from '../shared/colormaps';
+import { formatDepthApprox } from '../shared/format';
 import Colourbar from './Colourbar';
 
 const DEFAULT_META = {
@@ -20,33 +21,88 @@ const DEFAULT_META = {
   ]
 };
 
-const badgeStyle = {
-  fontSize: '0.65rem',
-  padding: '1px 5px',
-  borderRadius: '3px',
-  backgroundColor: 'rgba(255, 255, 255, 0.08)',
-  color: 'var(--muted, #888)',
-  border: '1px solid var(--border, #333)',
-  fontFamily: 'monospace'
+/* Instrument-rail primitives: quiet labels, hairline rules, no boxed cards.
+   Structure comes from spacing and rules, not from nested panels. */
+const sectionLabel = {
+  fontSize: '0.7rem',
+  fontWeight: 700,
+  letterSpacing: '0.05em',
+  color: 'var(--muted, #7d93a5)',
+  margin: '0 0 8px',
+  paddingBottom: 5,
+  borderBottom: '1px solid var(--border, #223140)'
 };
 
-const buttonStyle = {
-  backgroundColor: 'var(--panel-2, #242424)',
-  color: 'var(--text, #eee)',
-  border: '1px solid var(--border, #3a3a3a)',
-  borderRadius: '4px',
-  padding: '6px 10px',
+const sectionBlock = {
+  marginBottom: 16,
+  display: 'flex',
+  flexDirection: 'column',
+  gap: 8
+};
+
+const labelValueRow = {
+  display: 'flex',
+  justifyContent: 'space-between',
+  alignItems: 'baseline',
+  gap: 8
+};
+
+const fieldLabel = {
+  fontSize: '0.72rem',
+  color: 'var(--muted, #7d93a5)'
+};
+
+const monoValue = {
+  fontFamily: 'var(--mono, ui-monospace, Consolas, monospace)',
+  fontSize: '0.76rem',
+  color: 'var(--text, #d7e3ea)'
+};
+
+const selectStyle = {
+  width: '100%',
+  backgroundColor: 'var(--panel-2, #17222f)',
+  color: 'var(--text, #d7e3ea)',
+  border: '1px solid var(--border, #223140)',
+  borderRadius: 6,
+  padding: '7px 8px',
   fontSize: '0.8rem',
-  cursor: 'pointer',
+  boxSizing: 'border-box'
+};
+
+const ghostButton = {
+  background: 'var(--panel-2, #17222f)',
+  color: 'var(--text, #d7e3ea)',
+  border: '1px solid var(--border, #223140)',
+  borderRadius: 6,
+  padding: '6px 10px',
+  fontSize: '0.76rem',
+  cursor: 'pointer'
+};
+
+const numberInput = {
+  width: '100%',
+  boxSizing: 'border-box',
+  backgroundColor: 'var(--panel-2, #17222f)',
+  color: 'var(--text, #d7e3ea)',
+  border: '1px solid var(--border, #223140)',
+  borderRadius: 6,
+  padding: '5px 7px',
+  fontSize: '0.78rem'
+};
+
+const checkboxRow = {
   display: 'flex',
   alignItems: 'center',
-  justifyContent: 'center',
-  gap: '6px'
+  gap: 8,
+  fontSize: '0.78rem',
+  cursor: 'pointer',
+  color: 'var(--text, #d7e3ea)'
 };
 
 export default function ControlPanel() {
   const { state, update, meta } = useOcean();
   const [showDebug, setShowDebug] = useState(false);
+  const [showAdvanced, setShowAdvanced] = useState(false);
 
   // Memoize collections to prevent re-creation on every render
   const depths = useMemo(() => meta?.depths ?? DEFAULT_META.depths, [meta?.depths]);
@@ -149,12 +205,9 @@ export default function ControlPanel() {
     });
   };
 
-  // Support decimal depths for real data mode (e.g., 0.49 m)
-  const formatDepth = (val) => {
-    const num = Number(val);
-    if (Number.isNaN(num)) return `${val} m`;
-    return Number.isInteger(num) ? `${num} m` : `${num.toFixed(2)} m`;
-  };
+  // Support decimal depths for real data mode (e.g., 0.49 m shows as "≈ 0 m" —
+  // CONTRACT §11: readable labels, accurate value kept in state)
+  const formatDepth = (val) => formatDepthApprox(val);
 
   // Format UTC dates
   const formatDate = (isoString) => {
@@ -176,56 +229,32 @@ export default function ControlPanel() {
   return (
     <aside
       style={{
-        /* Width comes from the content (min-content of the controls);
-           the App grid sizes the column from this element. */
-        width: '288px',
+        width: 289,
         height: '100%',
         minHeight: 0,
         overflowY: 'auto',
-        backgroundColor: 'var(--panel, #121212)',
-        borderRight: '1px solid var(--border, #2a2a2a)',
-        padding: '16px',
+        backgroundColor: 'var(--panel, #111823)',
+        padding: '14px 16px 16px',
         display: 'flex',
         flexDirection: 'column',
-        gap: '14px',
         boxSizing: 'border-box',
-        color: 'var(--text, #eee)'
+        color: 'var(--text, #d7e3ea)'
       }}
     >
-      <div>
-        <h2 style={{ margin: '0 0 2px 0', fontSize: '1.15rem' }}>Ocean Controls</h2>
-        <span style={{ fontSize: '0.78rem', color: 'var(--muted, #888)' }}>
+      <div style={{ marginBottom: 14 }}>
+        <h2 style={{ margin: 0, fontSize: '1.02rem', letterSpacing: '-0.01em' }}>Ocean column</h2>
+        <span style={{ fontSize: '0.72rem', color: 'var(--muted, #7d93a5)' }}>
           Arabian Sea & Bay of Bengal
         </span>
       </div>
 
-      {/* 1. Data Variable */}
-      <section
-        style={{
-          backgroundColor: 'var(--panel-2, #1e1e1e)',
-          padding: '12px',
-          borderRadius: '6px',
-          border: '1px solid var(--border, #333)',
-          display: 'flex',
-          flexDirection: 'column',
-          gap: '8px'
-        }}
-      >
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <label style={{ fontSize: '0.8rem', fontWeight: 600 }}>Data Variable</label>
-          <span style={badgeStyle}>§3.2</span>
-        </div>
+      {/* 1. Data variable */}
+      <section style={sectionBlock}>
+        <h3 style={sectionLabel}>Data variable</h3>
         <select
           value={state.variable}
           onChange={handleVariableChange}
-          style={{
-            backgroundColor: 'var(--panel, #121212)',
-            color: 'var(--text, #eee)',
-            border: '1px solid var(--border, #444)',
-            borderRadius: '4px',
-            padding: '8px',
-            fontSize: '0.85rem'
-          }}
+          style={selectStyle}
         >
           {variables.map((v) => (
             <option key={v.id} value={v.id}>
@@ -235,40 +264,25 @@ export default function ControlPanel() {
         </select>
       </section>
 
-      {/* 2. Depth Control */}
-      <section
-        style={{
-          backgroundColor: 'var(--panel-2, #1e1e1e)',
-          padding: '12px',
-          borderRadius: '6px',
-          border: '1px solid var(--border, #333)',
-          display: 'flex',
-          flexDirection: 'column',
-          gap: '10px'
-        }}
-      >
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <span style={{ fontSize: '0.8rem', fontWeight: 600 }}>
-            Depth <span style={badgeStyle}>↑/↓</span>
-          </span>
-          <span style={{ fontFamily: 'monospace', fontWeight: 'bold', fontSize: '0.85rem' }}>
-            {formatDepth(state.depth)}
-          </span>
+      {/* 2. Depth */}
+      <section style={sectionBlock}>
+        <h3 style={sectionLabel}>Depth</h3>
+        <div style={labelValueRow}>
+          <span style={fieldLabel}>Plane</span>
+          <span style={{ ...monoValue, fontWeight: 700 }}>{formatDepth(state.depth)}</span>
         </div>
-
         <input
           type="range"
           min={0}
           max={Math.max(0, depths.length - 1)}
           value={currentDepthIndex}
           onChange={(e) => update({ depth: depths[Number(e.target.value)] })}
-          style={{ width: '100%', accentColor: 'var(--accent, #9c27b0)' }}
+          style={{ width: '100%' }}
         />
-
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
           <button
             type="button"
-            style={buttonStyle}
+            style={ghostButton}
             onClick={() => handleDepthStep(-1)}
             disabled={currentDepthIndex <= 0}
           >
@@ -276,7 +290,7 @@ export default function ControlPanel() {
           </button>
           <button
             type="button"
-            style={buttonStyle}
+            style={ghostButton}
             onClick={() => handleDepthStep(1)}
             disabled={currentDepthIndex >= depths.length - 1}
           >
@@ -285,170 +299,145 @@ export default function ControlPanel() {
         </div>
       </section>
 
-      {/* 3. Time Control & Animation */}
-      <section
-        style={{
-          backgroundColor: 'var(--panel-2, #1e1e1e)',
-          padding: '12px',
-          borderRadius: '6px',
-          border: '1px solid var(--border, #333)',
-          display: 'flex',
-          flexDirection: 'column',
-          gap: '10px'
-        }}
-      >
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <span style={{ fontSize: '0.8rem', fontWeight: 600 }}>
-            Time <span style={badgeStyle}>←/→</span>
-          </span>
-          <span style={{ fontFamily: 'monospace', fontSize: '0.8rem' }}>
-            {formatDate(state.time)}
-          </span>
+      {/* 3. Time & animation */}
+      <section style={sectionBlock}>
+        <h3 style={sectionLabel}>Time</h3>
+        <div style={labelValueRow}>
+          <span style={fieldLabel}>Model date</span>
+          <span style={monoValue}>{formatDate(state.time)}</span>
         </div>
-
         <input
           type="range"
           min={0}
           max={Math.max(0, times.length - 1)}
           value={currentTimeIndex}
           onChange={(e) => update({ time: times[Number(e.target.value)] })}
-          style={{ width: '100%', accentColor: 'var(--accent, #9c27b0)' }}
+          style={{ width: '100%' }}
         />
-
-        <button
-          type="button"
-          onClick={() => update({ isPlaying: !state.isPlaying })}
-          style={{
-            ...buttonStyle,
-            backgroundColor: state.isPlaying ? 'var(--accent, #9c27b0)' : 'var(--panel-2, #242424)',
-            fontWeight: 600
-          }}
-        >
-          {state.isPlaying ? '⏸ Pause' : '▶ Play'}{' '}
-          <span style={{ ...badgeStyle, marginLeft: '4px' }}>Space</span>
-        </button>
+        <div style={{ display: 'grid', gridTemplateColumns: 'auto 1fr', gap: 8 }}>
+          <button
+            type="button"
+            onClick={() => update({ isPlaying: !state.isPlaying })}
+            style={{
+              ...ghostButton,
+              ...(state.isPlaying
+                ? {
+                    backgroundColor: 'rgba(94, 234, 212, 0.14)',
+                    borderColor: 'rgba(94, 234, 212, 0.45)',
+                    color: '#5eead4'
+                  }
+                : {}),
+              fontWeight: 700,
+              minWidth: 92
+            }}
+          >
+            {state.isPlaying ? '❚❚ Pause' : '▶ Play'}
+          </button>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
+            <button
+              type="button"
+              style={ghostButton}
+              onClick={() => handleTimeStep(-1)}
+              title="One day earlier (←)"
+            >
+              ◀
+            </button>
+            <button
+              type="button"
+              style={ghostButton}
+              onClick={() => handleTimeStep(1)}
+              title="One day later (→)"
+            >
+              ▶
+            </button>
+          </div>
+        </div>
       </section>
 
-      {/* 4. Colour Scale & Standalone Colourbar */}
-      <section
-        style={{
-          backgroundColor: 'var(--panel-2, #1e1e1e)',
-          padding: '12px',
-          borderRadius: '6px',
-          border: '1px solid var(--border, #333)',
-          display: 'flex',
-          flexDirection: 'column',
-          gap: '10px'
-        }}
-      >
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <h3 style={{ margin: 0, fontSize: '0.85rem' }}>Colour Scale</h3>
+      {/* 4. Colour scale */}
+      <section style={sectionBlock}>
+        <div style={{ ...labelValueRow, marginBottom: 0 }}>
+          <h3 style={{ ...sectionLabel, marginBottom: 0, borderBottom: 'none', paddingBottom: 0 }}>
+            Colour scale
+          </h3>
           <button
             type="button"
             onClick={handleResetDefaults}
             style={{
               background: 'none',
               border: 'none',
-              color: 'var(--accent, #c084fc)',
-              fontSize: '0.75rem',
+              color: 'var(--accent, #5eead4)',
+              fontSize: '0.72rem',
               cursor: 'pointer',
-              textDecoration: 'underline'
+              textDecoration: 'underline',
+              padding: 0
             }}
           >
             Reset
           </button>
         </div>
+        <div style={{ height: 1, background: 'var(--border, #223140)', margin: '4px 0 2px' }} />
 
         <Colourbar />
 
-        <div>
-          <label style={{ fontSize: '0.75rem', color: 'var(--muted, #888)', display: 'block', marginBottom: '4px' }}>
-            Palette
-          </label>
-          <select
-            value={state.colormap}
-            onChange={(e) => update({ colormap: e.target.value })}
-            style={{
-              width: '100%',
-              backgroundColor: 'var(--panel, #121212)',
-              color: 'var(--text, #eee)',
-              border: '1px solid var(--border, #444)',
-              borderRadius: '4px',
-              padding: '6px 8px',
-              fontSize: '0.8rem'
-            }}
-          >
-            {COLORMAP_NAMES.map((name) => (
-              <option key={name} value={name}>
-                {name}
-              </option>
-            ))}
-          </select>
-        </div>
+        <label style={fieldLabel} htmlFor="colormap-select">
+          Palette
+        </label>
+        <select
+          id="colormap-select"
+          value={state.colormap}
+          onChange={(e) => update({ colormap: e.target.value })}
+          style={{ ...selectStyle, padding: '6px 8px', fontSize: '0.78rem' }}
+        >
+          {COLORMAP_NAMES.map((name) => (
+            <option key={name} value={name}>
+              {name}
+            </option>
+          ))}
+        </select>
 
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
           <div>
-            <label style={{ fontSize: '0.75rem', color: 'var(--muted, #888)', display: 'block', marginBottom: '4px' }}>
+            <label style={{ ...fieldLabel, display: 'block', marginBottom: 4 }} htmlFor="vmin-input">
               Min ({currentVarMeta?.units || ''})
             </label>
             <input
+              id="vmin-input"
               type="number"
               value={state.vmin}
               onChange={(e) => update({ vmin: Number(e.target.value) })}
-              style={{
-                width: '100%',
-                boxSizing: 'border-box',
-                backgroundColor: 'var(--panel, #121212)',
-                color: 'var(--text, #eee)',
-                border: '1px solid var(--border, #444)',
-                borderRadius: '4px',
-                padding: '6px',
-                fontSize: '0.8rem'
-              }}
+              style={numberInput}
             />
           </div>
           <div>
-            <label style={{ fontSize: '0.75rem', color: 'var(--muted, #888)', display: 'block', marginBottom: '4px' }}>
+            <label style={{ ...fieldLabel, display: 'block', marginBottom: 4 }} htmlFor="vmax-input">
               Max ({currentVarMeta?.units || ''})
             </label>
             <input
+              id="vmax-input"
               type="number"
               value={state.vmax}
               onChange={(e) => update({ vmax: Number(e.target.value) })}
-              style={{
-                width: '100%',
-                boxSizing: 'border-box',
-                backgroundColor: 'var(--panel, #121212)',
-                color: 'var(--text, #eee)',
-                border: '1px solid var(--border, #444)',
-                borderRadius: '4px',
-                padding: '6px',
-                fontSize: '0.8rem'
-              }}
+              style={numberInput}
             />
           </div>
         </div>
 
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <label style={{ fontSize: '0.75rem', color: 'var(--muted, #888)' }}>Scale Type</label>
+        <div style={labelValueRow}>
+          <span style={fieldLabel}>Scale</span>
           <button
             type="button"
             onClick={() => update({ scale: state.scale === 'log' ? 'linear' : 'log' })}
-            style={{
-              ...buttonStyle,
-              padding: '4px 10px',
-              fontSize: '0.75rem',
-              textTransform: 'uppercase'
-            }}
+            style={{ ...ghostButton, padding: '3px 10px', fontSize: '0.72rem' }}
           >
             {state.scale || 'linear'}
           </button>
         </div>
 
         <div>
-          <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.75rem', marginBottom: '4px' }}>
-            <span style={{ color: 'var(--muted, #888)' }}>Opacity</span>
-            <span style={{ fontFamily: 'monospace' }}>{Math.round((state.opacity ?? 1) * 100)}%</span>
+          <div style={{ ...labelValueRow, marginBottom: 4 }}>
+            <span style={fieldLabel}>Opacity</span>
+            <span style={monoValue}>{Math.round((state.opacity ?? 1) * 100)}%</span>
           </div>
           <input
             type="range"
@@ -457,47 +446,37 @@ export default function ControlPanel() {
             step={0.05}
             value={state.opacity ?? 1}
             onChange={(e) => update({ opacity: Number(e.target.value) })}
-            style={{ width: '100%', accentColor: 'var(--accent, #9c27b0)' }}
+            style={{ width: '100%' }}
           />
         </div>
       </section>
 
-      {/* 5. Overlays & View */}
-      <section
-        style={{
-          backgroundColor: 'var(--panel-2, #1e1e1e)',
-          padding: '12px',
-          borderRadius: '6px',
-          border: '1px solid var(--border, #333)',
-          display: 'flex',
-          flexDirection: 'column',
-          gap: '10px'
-        }}
-      >
-        <h3 style={{ margin: 0, fontSize: '0.85rem' }}>Overlays & View</h3>
+      {/* 5. Overlays & view */}
+      <section style={sectionBlock}>
+        <h3 style={sectionLabel}>Overlays</h3>
 
-        <label style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.8rem', cursor: 'pointer' }}>
+        <label style={checkboxRow}>
           <input
             type="checkbox"
             checked={!!state.showFloats}
             onChange={(e) => update({ showFloats: e.target.checked })}
           />
-          Show Float Markers
+          Platform markers
         </label>
 
-        <label style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.8rem', cursor: 'pointer' }}>
+        <label style={checkboxRow}>
           <input
             type="checkbox"
             checked={!!state.showCurrents}
             onChange={(e) => update({ showCurrents: e.target.checked })}
           />
-          Show Surface Current Vectors
+          Surface current vectors
         </label>
 
         <div>
-          <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.75rem', marginBottom: '4px' }}>
-            <span style={{ color: 'var(--muted, #888)' }}>Vertical Exaggeration</span>
-            <span style={{ fontFamily: 'monospace' }}>{state.verticalExaggeration ?? 1}x</span>
+          <div style={{ ...labelValueRow, marginBottom: 4 }}>
+            <span style={fieldLabel}>Vertical exaggeration</span>
+            <span style={monoValue}>{state.verticalExaggeration ?? 1}x</span>
           </div>
           <input
             type="range"
@@ -506,44 +485,98 @@ export default function ControlPanel() {
             step={0.5}
             value={state.verticalExaggeration ?? 1}
             onChange={(e) => update({ verticalExaggeration: Number(e.target.value) })}
-            style={{ width: '100%', accentColor: 'var(--accent, #9c27b0)' }}
+            style={{ width: '100%' }}
           />
         </div>
       </section>
 
-      {/* 6. Collapsible Debug State */}
-      <section
-        style={{
-          backgroundColor: 'var(--panel-2, #1e1e1e)',
-          padding: '8px 12px',
-          borderRadius: '6px',
-          border: '1px solid var(--border, #333)',
-          fontSize: '0.75rem'
-        }}
-      >
-        <div
-          onClick={() => setShowDebug(!showDebug)}
+      {/* 6. Advanced — technical visualizations, off by default (§10:
+          simple on the surface, technically deep underneath) */}
+      <section style={sectionBlock}>
+        <button
+          type="button"
+          onClick={() => setShowAdvanced(!showAdvanced)}
+          aria-expanded={showAdvanced}
           style={{
-            cursor: 'pointer',
+            ...sectionLabel,
+            width: '100%',
             display: 'flex',
             justifyContent: 'space-between',
             alignItems: 'center',
-            color: 'var(--muted, #888)'
+            cursor: 'pointer',
+            background: 'none',
+            border: 'none',
+            textAlign: 'left',
+            padding: '0 0 5px',
+            fontFamily: 'inherit'
+          }}
+        >
+          <span>Advanced</span>
+          <span style={{ color: 'var(--muted, #7d93a5)' }}>{showAdvanced ? '▲' : '▼'}</span>
+        </button>
+
+        {showAdvanced && (
+          <>
+            <label style={checkboxRow}>
+              <input
+                type="checkbox"
+                checked={!!state.showSection}
+                onChange={(e) => update({ showSection: e.target.checked })}
+              />
+              Movable vertical section
+            </label>
+
+            <label style={checkboxRow}>
+              <input
+                type="checkbox"
+                checked={!!state.showIsotherm}
+                onChange={(e) => update({ showIsotherm: e.target.checked })}
+              />
+              20 °C isotherm surface
+            </label>
+
+            <div style={{ fontSize: '0.68rem', color: 'var(--muted, #7d93a5)', lineHeight: 1.45 }}>
+              The vertical section is positioned inside the 3D view; the isotherm derives from
+              temperature at the model's grid resolution.
+            </div>
+          </>
+        )}
+      </section>
+
+      {/* 7. Collapsible debug state */}
+      <section style={{ marginTop: 'auto' }}>
+        <button
+          type="button"
+          onClick={() => setShowDebug(!showDebug)}
+          aria-expanded={showDebug}
+          style={{
+            width: '100%',
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            background: 'none',
+            border: 'none',
+            borderTop: '1px solid var(--border, #223140)',
+            padding: '10px 0 0',
+            color: 'var(--muted, #7d93a5)',
+            fontSize: '0.72rem',
+            cursor: 'pointer',
+            fontFamily: 'inherit'
           }}
         >
           <span>Debug: shared state</span>
           <span>{showDebug ? '▲' : '▼'}</span>
-        </div>
+        </button>
         {showDebug && (
           <pre
             style={{
               margin: '8px 0 0 0',
-              padding: '6px',
+              padding: 8,
               backgroundColor: 'rgba(0, 0, 0, 0.4)',
-              borderRadius: '4px',
-              maxHeight: '160px',
+              borderRadius: 6,
+              maxHeight: 160,
               overflow: 'auto',
-              fontSize: '0.68rem',
+              fontSize: '0.66rem',
               color: '#a3e635'
             }}
           >

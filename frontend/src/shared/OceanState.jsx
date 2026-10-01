@@ -22,6 +22,9 @@ export const DEFAULT_STATE = {
   verticalExaggeration: 1,   // 1..10 multiplier on the renderer's base depth scale
   showFloats: true,          // show Argo/glider markers
   showCurrents: false,       // show current arrows
+  viewMode: 'regional',      // 'regional' overview | 'local' dashboard (CONTRACT §4)
+  showSection: false,        // movable vertical section (Advanced)
+  showIsotherm: false,       // 20°C isotherm surface (Advanced)
   selectedFloatId: null,     // id from /api/floats, or null
 }
 

@@ -6,7 +6,10 @@
   --border: #223140;
   --text: #d7e3ea;
   --muted: #7d93a5;
-  --accent: #c084fc;
+  /* Seafoam accent — instrument-cue green used sparingly for active state
+     (Play button, reset links, focus). Deliberately not purple/blue: it reads
+     against the deep water palette without competing with the data colormaps. */
+  --accent: #5eead4;
   --danger: #ff6b6b;
 
   --sans: system-ui, 'Segoe UI', Roboto, sans-serif;
@@ -82,4 +85,33 @@ code {
 /* Range inputs use the accent colour everywhere */
 input[type='range'] {
   accent-color: var(--accent);
+}
+
+/* Keyboard focus stays visible on the dark surfaces */
+button:focus-visible,
+select:focus-visible,
+input:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+
+/* Slim dark scrollbars: the rail and cards scroll internally; the default
+   chunky OS scrollbar with arrow buttons fights the instrument-rail look. */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #2a3b4d transparent;
+}
+
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #2a3b4d;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
 }

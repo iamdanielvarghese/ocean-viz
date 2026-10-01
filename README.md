@@ -1,19 +1,35 @@
-# Ocean 3D Viz 🌊
+# Ocean-Viz 🌊
 
-A browser-based 3D visualization platform built for **Smart India Hackathon 2026 — Problem Statement 26067** (MoES / INCOIS).
+An interactive ocean monitoring and exploration platform for **Smart India Hackathon 2026 — Problem Statement 26067** (MoES / INCOIS): India's surrounding ocean conditions, a numerical model and in-situ observations in one experience — discover observations geographically, dive into a local 3D water column, and compare what the model predicted with what the ocean actually measured.
 
-It shows ocean model output (temperature, salinity, currents) through the water column as an interactive 3D cube, side by side with real **Argo float** and **glider** observations — so a forecaster can answer *"did the model get it right, here, at this depth?"* at a glance.
+**Region:** Arabian Sea + Bay of Bengal (0–25°N, 60–100°E) · **Depth:** surface to 1000 m · **Stack:** React + Three.js + Leaflet + FastAPI
 
-**Region:** Arabian Sea + Bay of Bengal (0–25°N, 60–100°E) · **Depth:** surface to 1000 m · **Stack:** React + Three.js + FastAPI
+## How it works — two levels
+
+**Level 1 — Regional overview** *(the first screen)*
+A full-screen map of India and the surrounding seas answers *"what's happening around India right now?"*: the model's surface condition rendered under the markers, an honest summary (mean/min/max of the loaded field), and every **Argo float** and **glider** observation within ±5 days of the selected time. Quick-select buttons jump to the Arabian Sea or Bay of Bengal.
+
+**The Dive** *(~1.5 s, on your call)*
+Select any observation and press **⤓ Dive**. The map flies to the platform while the view fades, and the 3D camera arrives **top-down above that exact lat/lon**, easing into the oblique working view. The model time snaps to the time nearest the observation, so everything you see describes the same place *and* moment.
+
+**Level 2 — Local water column**
+The cube renders a **±5° sub-volume of the model grid centred on the selected platform** — not a generic scene — with a cyan location column marking where the instrument sits. Only the selected platform's marker is shown here; the full observation set lives on the map. A context chip states exactly what is rendered (platform, extent, variable, depth, model time, source), and the profile panel compares **observation vs model** on a shared depth axis with the surface difference (Δ). If no platform is selected, the cube shows the full regional grid and says so.
+
+The dashboard is full-bleed: the cube is the hero, with floating **Location** and **Platform profile** cards over it that you can hide or restore from the header (preferences are remembered in `localStorage`). After the one-shot arrival framing, camera control is yours — playing the time animation only moves the marker and never re-frames your orbit or zoom.
+
+Advanced capabilities — the movable **vertical section** and the **20 °C isotherm** surface — are one click away under *Advanced visualizations* (off by default).
 
 ## Features
 
-- 🧊 **3D ocean cube** — orbit / zoom / pan, depth slices coloured by variable, cube walls, movable vertical section, 20 °C isotherm surface
-- 🎛️ **Full control panel** — variable, depth, time animation, colour bar (palette, min/max, log/linear), opacity, vertical exaggeration
-- 🗺️ **Float map** — Argo & glider positions within ±5 days of the selected time, clickable
-- 📈 **Model vs observation** — click a float to see its measured profile against the model's prediction at the same spot, with the surface difference
+- 🗺️ **Regional overview** — surface condition field, observations, honest conditions summary, MOCK/REAL source badge, "latest available" time labelling
+- ⤓ **Dive transition** — map flyTo + camera tween onto the selected platform's exact coordinates
+- 🧊 **Localized 3D water column** — model sub-volume around the observation; full grid otherwise, always labelled
+- 📈 **Model vs observation** — measured profile against the model prediction at the same place/depth/time
 - 🌊 **Current vectors** — directional arrows at the selected depth, coloured by speed
-- 🔌 **Mock / real data switch** — develop on synthetic mock data, flip one env var to serve real Copernicus model output
+- 🎛️ **Clean controls** — variable, depth (friendly labels like "≈ 100 m"), time animation, colour bar; section/isotherm tucked into Advanced
+- 🖥️ **Full-bleed local dashboard** — floating Location & Platform-profile cards, hide/show from the header, preferences persisted
+- ⌨️ **Keyboard shortcuts** — Space play/pause, ←/→ step time, ↑/↓ step depth (ignored while typing in an input)
+- 🔌 **Mock / real data** — synthetic dataset for development; one env var flips to real Copernicus model output and processed Argo data
 
 ## Tech stack
 
@@ -53,16 +69,17 @@ Restart the dev server and the app serves `data/processed/model.nc` through the 
 
 ```
 ocean-viz/
-├── frontend/            # React app (port 5173)
-│   ├── src/renderer/    #   Three.js 3D ocean cube
-│   ├── src/controls/    #   Control panel
-│   ├── src/floats/      #   Float map + profile charts
-│   ├── src/shared/      #   API client, state, colormaps
-│   └── public/mock/     #   Synthetic mock dataset
-├── backend/             # FastAPI server (port 8000)
-├── data/                # Dataset prep scripts + processed model.nc
-├── pitch/               # Demo deck & script
-└── CONTRACT.md          # Team API/UI contract (single source of truth)
+├── frontend/                  # React app (port 5173)
+│   ├── src/regional/          #   Level 1: overview map, conditions, surface overlay
+│   ├── src/renderer/          #   Level 2: Three.js water column, camera tween
+│   ├── src/controls/          #   Control panel (incl. Advanced section)
+│   ├── src/floats/            #   Float map (hero/widget) + profile charts
+│   ├── src/shared/            #   API client, state, colormaps, formatting
+│   └── public/mock/           #   Synthetic mock dataset
+├── backend/                   # FastAPI server (port 8000)
+├── data/                      # Dataset prep scripts + processed model.nc
+├── pitch/                     # Demo deck & script
+└── CONTRACT.md                # Team API/UI contract (single source of truth)
 ```
 
 ## Data credits
@@ -71,4 +88,4 @@ ocean-viz/
 - **Observations:** the [International Argo Program](https://argo.ucsd.edu/)
 - **Coastlines:** [Natural Earth](https://www.naturalearthdata.com/) (public domain)
 
-The dataset in `frontend/public/mock/` is **synthetic** — for development and testing only, never presented as real.
+The dataset in `frontend/public/mock/` is **synthetic** — for development and testing only, never presented as real. Times shown in the UI are labelled "latest available" / "model time", not live data.

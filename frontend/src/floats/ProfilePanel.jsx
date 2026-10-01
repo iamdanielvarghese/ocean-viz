@@ -325,7 +325,7 @@ function ProfileChart({
 
   return (
     <div style={{ flex: '1 1 240px', minWidth: 220 }}>
-      <div style={{ height: 220 }}>
+      <div style={{ height: 160 }}>
         <Scatter
           data={chartData}
           options={chartOptions}
